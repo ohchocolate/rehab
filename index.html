@@ -18,6 +18,7 @@
       <div class="header-title">每日康复训练</div>
       <div class="header-sub" id="dateDisplay"></div>
     </div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀</button>
     <div class="streak-pill" onclick="openHistory()">
       <span class="streak-flame">🔥</span>
       <div>
@@ -41,9 +42,54 @@
 <div id="section-spine" class="section" style="display:none"></div>
 <div id="section-upper" class="section" style="display:none"></div>
 
+<div class="token-notice" id="tokenNotice" style="display:none">
+  <span>未设置 GitHub Token，打卡数据仅保存在本设备</span>
+  <button onclick="openTokenSetup()">设置</button>
+</div>
+
 <div class="bottom-bar">
   <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()">今日打卡 · 领取惊喜</button>
   <div class="checkin-sub" id="checkinSub"></div>
+</div>
+
+<div class="countdown-overlay" id="countdownOverlay" onclick="skipCountdown()">
+  <div class="countdown-num" id="countdownNum">3</div>
+  <div class="countdown-hint">点击跳过</div>
+</div>
+
+<div class="exit-popup-backdrop" id="exitPopupBackdrop">
+  <div class="exit-popup">
+    <div class="exit-popup-title">保存进度？</div>
+    <div class="exit-popup-body" id="exitPopupBody">你完成了 N 组 · 共 M 组</div>
+    <div class="exit-popup-btns">
+      <button class="btn btn-secondary" onclick="exitDiscard()">放弃</button>
+      <button class="btn btn-primary" onclick="exitContinue()">继续训练</button>
+      <button class="btn btn-gold" id="exitSaveBtn" onclick="exitSave()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-toast" id="saveToast">
+  <span id="saveToastText">已保存 ✓</span>
+  <a id="saveToastLink" href="#" target="_blank" style="display:none">查看记录 →</a>
+  <button id="saveToastRetry" onclick="retryCheckinSave()" style="display:none">重试</button>
+</div>
+
+<div class="overlay" id="tokenSetupOverlay">
+  <div class="form-container">
+    <div class="form-title">GitHub 同步设置</div>
+    <div class="form-sub">Token 只存在你的设备，不进代码</div>
+    <div class="form-group">
+      <label class="form-label">Fine-Grained PAT</label>
+      <input type="password" class="form-input" id="tokenInput" placeholder="github_pat_…">
+      <div class="form-helper">GitHub → Settings → Developer Settings → Fine-grained tokens<br>权限：Contents → Read and Write · 仓库：ohchocolate/rehab</div>
+    </div>
+    <div class="reward-btns" style="margin-top:24px; gap:10px; flex-direction:column">
+      <button class="btn btn-gold" onclick="saveTokenSetup()">确认保存</button>
+      <button class="btn btn-secondary" onclick="closeTokenSetup()">取消</button>
+      <button class="btn delete-btn" onclick="clearTokenAndReset()">清除 Token</button>
+    </div>
+  </div>
 </div>
 
 <div class="overlay" id="timerOverlay">
@@ -189,6 +235,6 @@
   </div>
 </div>
 
-<script src="src/app.js"></script>
+<script type="module" src="src/app.js"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+import { loadStoredConfig, initGitHub, writeSession, hasToken, GitHubError } from './github.js';
+
 const exercises = {
   ankle: [
     {
@@ -488,6 +490,7 @@ const rewards = [
 
 let state = {
   completedToday: new Set(),
+  setsPartial: {},
   streak: 0,
   lastCheckinDate: null,
   checkinHistory: [],
@@ -514,6 +517,7 @@ function loadState() {
 
       if (loaded.completedDate === getTodayKey()) {
         state.completedToday = new Set(loaded.completedToday || []);
+        state.setsPartial = loaded.setsPartial || {};
       }
 
       if (state.lastCheckinDate && state.lastCheckinDate !== getTodayKey() && state.lastCheckinDate !== getYesterdayKey()) {
@@ -530,6 +534,7 @@ function saveState() {
       lastCheckinDate: state.lastCheckinDate,
       checkinHistory: state.checkinHistory,
       completedToday: Array.from(state.completedToday),
+      setsPartial: state.setsPartial,
       completedDate: getTodayKey(),
     }));
   } catch(e) { console.log('Save err', e); }
@@ -537,6 +542,7 @@ function saveState() {
 
 let currentEx = null;
 let timerInterval = null;
+let countdownInterval = null;
 let timeLeft = 0;
 let totalTime = 0;
 let currentSet = 1;
@@ -544,6 +550,14 @@ let isRunning = false;
 
 function init() {
   loadState();
+  loadStoredConfig();
+
+  const savedTheme = localStorage.getItem('rehab_theme');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('themeToggle').textContent = '🌙';
+  }
+
   const now = new Date();
   document.getElementById('dateDisplay').textContent =
     now.toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
@@ -554,6 +568,10 @@ function init() {
   updateProgress();
   updateStreak();
   updateCheckinButton();
+
+  if (!hasToken()) {
+    document.getElementById('tokenNotice').style.display = 'block';
+  }
 }
 
 function getAllExercises(type) {
@@ -590,16 +608,17 @@ function renderSection(type) {
   exList.forEach((ex, i) => {
     const key = `${type}-${i}`;
     const isDone = state.completedToday.has(key);
+    const isPartial = !isDone && state.setsPartial[key] > 0;
     const isCustom = ex.custom;
     const card = document.createElement('div');
-    card.className = `ex-card ${type}${isDone ? ' completed' : ''}${isCustom ? ' custom' : ''}`;
+    card.className = `ex-card ${type}${isDone ? ' completed' : ''}${isPartial ? ' partial' : ''}${isCustom ? ' custom' : ''}`;
     card.id = `card-${key}`;
     card.innerHTML = `
       <div class="ex-top">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-badge">${ex.badge || ''}</div>
       </div>
-      <div class="ex-sets">${ex.sets}</div>
+      <div class="ex-sets">${ex.sets}${isPartial ? ` <span class="partial-label">· 已完成 ${state.setsPartial[key]} 组</span>` : ''}</div>
       <div class="ex-cue">${ex.brief || ex.cue || ''}</div>
       <div class="ex-check">✓</div>
     `;
@@ -768,21 +787,43 @@ function toggleTimer() {
     isRunning = false;
     document.getElementById('timerMainBtn').textContent = '继续';
   } else {
-    isRunning = true;
-    document.getElementById('timerMainBtn').textContent = '暂停';
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      document.getElementById('timerNum').textContent = timeLeft;
-      const pct = 1 - (timeLeft / totalTime);
-      document.getElementById('timerRing').style.strokeDashoffset = pct * 553;
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        isRunning = false;
-        vibrate();
-        completeSet();
-      }
-    }, 1000);
+    startCountdown();
   }
+}
+
+function startCountdown() {
+  let n = 3;
+  const overlay = document.getElementById('countdownOverlay');
+  const numEl = document.getElementById('countdownNum');
+  numEl.textContent = n;
+  overlay.classList.add('visible');
+
+  countdownInterval = setInterval(() => {
+    n--;
+    if (n <= 0) {
+      skipCountdown();
+    } else {
+      numEl.textContent = n;
+    }
+  }, 1000);
+}
+
+function skipCountdown() {
+  clearInterval(countdownInterval);
+  document.getElementById('countdownOverlay').classList.remove('visible');
+  isRunning = true;
+  document.getElementById('timerMainBtn').textContent = '暂停';
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timerNum').textContent = timeLeft;
+    const pct = 1 - (timeLeft / totalTime);
+    document.getElementById('timerRing').style.strokeDashoffset = pct * 553;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      isRunning = false;
+      completeSet();
+    }
+  }, 1000);
 }
 
 function completeSet() {
@@ -811,7 +852,43 @@ function markExDone() {
 
 function closeTimer() {
   clearInterval(timerInterval);
+  clearInterval(countdownInterval);
+  document.getElementById('countdownOverlay').classList.remove('visible');
   isRunning = false;
+
+  const ex = currentEx.ex;
+  const setsCompleted = currentSet - 1;
+  if (setsCompleted > 0 && currentSet <= ex.sets_n) {
+    document.getElementById('exitPopupBody').textContent = `你完成了 ${setsCompleted} 组 · 共 ${ex.sets_n} 组`;
+    document.getElementById('exitSaveBtn').textContent = `保存 ${setsCompleted} 组`;
+    document.getElementById('exitPopupBackdrop').classList.add('visible');
+    return;
+  }
+
+  document.getElementById('timerOverlay').classList.remove('visible');
+  renderSetDots();
+}
+
+function exitContinue() {
+  document.getElementById('exitPopupBackdrop').classList.remove('visible');
+}
+
+function exitDiscard() {
+  document.getElementById('exitPopupBackdrop').classList.remove('visible');
+  document.getElementById('timerOverlay').classList.remove('visible');
+  renderSetDots();
+}
+
+function exitSave() {
+  const ex = currentEx.ex;
+  const setsCompleted = currentSet - 1;
+  state.setsPartial[currentEx.key] = setsCompleted;
+  delete state.completedToday[currentEx.key];
+  saveState();
+  renderSection(currentEx.type);
+  updateProgress();
+  updateCheckinButton();
+  document.getElementById('exitPopupBackdrop').classList.remove('visible');
   document.getElementById('timerOverlay').classList.remove('visible');
   renderSetDots();
 }
@@ -826,10 +903,6 @@ function updateProgress() {
   const total = getTotalExerciseCount();
   const done = state.completedToday.size;
   document.getElementById('progressBar').style.width = `${(done/total)*100}%`;
-}
-
-function vibrate() {
-  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
 }
 
 function updateStreak() {
@@ -860,7 +933,7 @@ function updateCheckinButton() {
   }
 }
 
-function doCheckin() {
+async function doCheckin() {
   const today = getTodayKey();
   const done = state.completedToday.size;
 
@@ -888,9 +961,64 @@ function doCheckin() {
   saveState();
   updateStreak();
   updateCheckinButton();
-
-  vibrate();
   showReward(rewardIdx, false);
+
+  if (hasToken()) {
+    showSaveToast('saving');
+    try {
+      const sessionData = buildSessionData(today);
+      await writeSession(today, sessionData);
+      showSaveToast('success', today);
+    } catch (err) {
+      if (err instanceof GitHubError && err.requiresReauth) {
+        showSaveToast('error', null, 'Token 无效，请重新设置');
+        document.getElementById('tokenNotice').style.display = 'block';
+      } else {
+        showSaveToast('error', null, err.message || '保存失败，请检查网络');
+      }
+    }
+  }
+}
+
+function buildSessionData(date) {
+  const exerciseResults = [];
+  ['ankle', 'spine', 'upper'].forEach(type => {
+    getAllExercises(type).forEach((ex, i) => {
+      const key = `${type}-${i}`;
+      if (state.completedToday.has(key)) {
+        exerciseResults.push({ key, name: ex.name, sets_completed: ex.sets_n, sets_planned: ex.sets_n, complete: true });
+      } else if (state.setsPartial[key] > 0) {
+        exerciseResults.push({ key, name: ex.name, sets_completed: state.setsPartial[key], sets_planned: ex.sets_n, complete: false });
+      }
+    });
+  });
+  return { date, checkin_time: new Date().toISOString(), streak: state.streak, exercises: exerciseResults };
+}
+
+function showSaveToast(status, date, errorMsg) {
+  const toast = document.getElementById('saveToast');
+  const text = document.getElementById('saveToastText');
+  const link = document.getElementById('saveToastLink');
+  const retry = document.getElementById('saveToastRetry');
+
+  toast.className = 'save-toast visible ' + status;
+
+  if (status === 'saving') {
+    text.textContent = '正在保存到 GitHub…';
+    link.style.display = 'none';
+    retry.style.display = 'none';
+  } else if (status === 'success') {
+    const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    text.textContent = `✓ 已保存 · ${time}`;
+    link.href = `https://github.com/ohchocolate/rehab/blob/main/data/sessions/${date}.json`;
+    link.style.display = 'inline';
+    retry.style.display = 'none';
+    setTimeout(() => toast.classList.remove('visible'), 5000);
+  } else {
+    text.textContent = `✗ ${errorMsg || '保存失败'}`;
+    link.style.display = 'none';
+    retry.style.display = 'inline';
+  }
 }
 
 function showReward(idx, isRevisit) {
@@ -1150,5 +1278,62 @@ function deleteCustomExercise() {
   updateCheckinButton();
   closeAddExercise();
 }
+
+/* ============ THEME ============ */
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  localStorage.setItem('rehab_theme', isLight ? 'light' : 'dark');
+  document.getElementById('themeToggle').textContent = isLight ? '🌙' : '☀';
+}
+
+/* ============ TOKEN SETUP ============ */
+function openTokenSetup() {
+  document.getElementById('tokenSetupOverlay').classList.add('visible');
+  document.getElementById('tokenSetupOverlay').scrollTop = 0;
+}
+
+function closeTokenSetup() {
+  document.getElementById('tokenSetupOverlay').classList.remove('visible');
+}
+
+function saveTokenSetup() {
+  const token = document.getElementById('tokenInput').value.trim();
+  if (!token) { alert('请输入 GitHub Token'); return; }
+  initGitHub(token, 'ohchocolate', 'rehab');
+  document.getElementById('tokenNotice').style.display = 'none';
+  closeTokenSetup();
+  showSaveToast('success_token');
+}
+
+function clearTokenAndReset() {
+  if (!confirm('确定清除 Token？打卡数据将不再同步到 GitHub。')) return;
+  localStorage.removeItem('gh_token');
+  localStorage.removeItem('gh_owner');
+  localStorage.removeItem('gh_repo');
+  document.getElementById('tokenNotice').style.display = 'block';
+  closeTokenSetup();
+}
+
+function retryCheckinSave() {
+  const today = getTodayKey();
+  document.getElementById('saveToast').classList.remove('visible');
+  if (hasToken()) {
+    showSaveToast('saving');
+    const sessionData = buildSessionData(today);
+    writeSession(today, sessionData)
+      .then(() => showSaveToast('success', today))
+      .catch(err => showSaveToast('error', null, err.message || '保存失败'));
+  }
+}
+
+/* ============ WINDOW EXPOSURE (required for inline onclick in HTML) ============ */
+Object.assign(window, {
+  showSection, openTimer, closeTimer, toggleTimer, skipCountdown,
+  exitContinue, exitDiscard, exitSave,
+  doCheckin, closeReward, openHistory, closeHistory,
+  openAddExercise, closeAddExercise, saveCustomExercise, deleteCustomExercise,
+  toggleTheme, openTokenSetup, closeTokenSetup, saveTokenSetup, clearTokenAndReset,
+  retryCheckinSave,
+});
 
 init();

@@ -714,3 +714,210 @@ body {
 }
 .cal-dot.done { background: var(--gold); color: #1a1208; font-weight: 700; }
 .cal-dot.today { outline: 1px solid var(--text); outline-offset: 1px; }
+
+/* ============ LIGHT MODE ============ */
+body.light {
+  --bg: #F5F1EA;
+  --surface: #EDE9E0;
+  --surface2: #E4DFD5;
+  --border: #D4CEC4;
+  --text: #1C1916;
+  --muted: #8B8178;
+}
+body.light .timer-top { background: var(--bg); }
+body.light .timer-bottom { background: linear-gradient(transparent, var(--bg) 30%); }
+body.light .bottom-bar { background: linear-gradient(transparent, var(--bg) 40%); }
+body.light .reward-overlay { background: radial-gradient(ellipse at top, #f0e8d8 0%, var(--bg) 70%); }
+body.light .reward-card { background: linear-gradient(145deg, #ede3d0 0%, #e8ddc8 100%); }
+body.light .checkin-btn.done { background: linear-gradient(135deg, #e8e0d0, #ddd5c5); }
+body.light .instr-setup-text,
+body.light .instr-steps li,
+body.light .instr-cues li,
+body.light .instr-breath { color: #4a4035; }
+body.light .ex-cue { color: #6b6055; }
+body.light .timer-cue { color: #6b6055; }
+
+/* ============ THEME TOGGLE ============ */
+.theme-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.theme-toggle:active { transform: scale(0.95); }
+
+/* ============ COUNTDOWN OVERLAY ============ */
+.countdown-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(8, 10, 13, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+.countdown-overlay.visible { opacity: 1; pointer-events: all; }
+.countdown-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 120px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1;
+  animation: countPulse 1s ease-in-out;
+}
+@keyframes countPulse {
+  0% { transform: scale(1.2); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.countdown-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  margin-top: 24px;
+  text-transform: uppercase;
+}
+body.light .countdown-overlay { background: rgba(245, 241, 234, 0.92); }
+
+/* ============ EXIT POPUP (Option C) ============ */
+.exit-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.exit-popup-backdrop.visible { opacity: 1; pointer-events: all; }
+.exit-popup {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 340px;
+}
+.exit-popup-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.exit-popup-body {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+.exit-popup-btns {
+  display: flex;
+  gap: 8px;
+}
+.exit-popup-btns .btn { font-size: 12px; padding: 12px 8px; }
+
+/* ============ TOKEN NOTICE BANNER ============ */
+.token-notice {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+.token-notice button {
+  background: var(--gold);
+  color: #1a1208;
+  border: none;
+  border-radius: 10px;
+  padding: 5px 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ============ SAVE TOAST ============ */
+.save-toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+  z-index: 400;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+.save-toast.visible { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0); }
+.save-toast.success { border-color: var(--done); }
+.save-toast.success #saveToastText { color: var(--done); }
+.save-toast.error { border-color: #F87171; }
+.save-toast.error #saveToastText { color: #F87171; }
+.save-toast.saving { border-color: var(--muted); }
+#saveToastLink {
+  color: var(--ankle);
+  text-decoration: none;
+  font-size: 11px;
+}
+#saveToastRetry {
+  background: #3a1818;
+  color: #F87171;
+  border: 1px solid #F8717133;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+/* ============ PARTIAL COMPLETION ============ */
+.ex-card.partial { opacity: 0.75; }
+.ex-card.partial .ex-check {
+  opacity: 1;
+  background: var(--muted);
+  font-size: 10px;
+}
+.partial-label {
+  color: var(--gold);
+  font-size: 10px;
+}
+
+/* ============ TOKEN SETUP OVERLAY ============ */
+.overlay#tokenSetupOverlay {
+  padding: 60px 20px 40px;
+  overflow-y: auto;
+  justify-content: flex-start;
+}
