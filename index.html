@@ -18,7 +18,8 @@
       <div class="header-title">每日康复训练</div>
       <div class="header-sub" id="dateDisplay"></div>
     </div>
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀</button>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="切换主题">☀️</button>
+    <button class="settings-toggle" id="settingsToggle" onclick="openTokenSetup()" aria-label="设置">⚙</button>
     <div class="streak-pill" onclick="openHistory()">
       <span class="streak-flame">🔥</span>
       <div>
@@ -127,6 +128,7 @@
       <button class="btn btn-secondary" onclick="closeTimer()">← 返回</button>
       <button class="btn btn-primary" id="timerMainBtn" onclick="toggleTimer()">开始</button>
     </div>
+    <button class="manual-plus-btn" onclick="manualIncrementSet()">+1 组（手动计入）</button>
   </div>
 </div>
 

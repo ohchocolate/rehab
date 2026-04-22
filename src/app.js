@@ -6,6 +6,7 @@ const exercises = {
       name: "半跪姿踝背屈活动", sets: "2组 × 15次", badge: "5x/周",
       timerType: "reps", reps: 15, sets_n: 2,
       brief: "前腿半跪，膝盖过脚尖，感受踝前拉伸",
+      category: "warmup",
       setup: "右腿在前、左膝跪地的半跪姿。前脚掌完全平放地面，脚跟踩实；后腿膝盖在髋部正下方。双手放在前膝上辅助稳定。",
       steps: [
         "双手按在前膝（右膝）上",
@@ -66,6 +67,7 @@ const exercises = {
       name: "踝关节内外翻 AROM", sets: "2组 × 10次", badge: "活动度",
       timerType: "reps", reps: 10, sets_n: 2,
       brief: "仰卧，脚踝放泡沫轴上，脚尖转内转外",
+      category: "warmup",
       setup: "仰卧垫上，弯曲一侧膝盖（非训练腿）；训练侧腿伸直，小腿末端（跟腱上方）放在泡沫轴上，脚踝悬空——这样踝关节可以完全自由活动。",
       steps: [
         "脚尖先向内翻转到最大范围——像拧毛巾的方向",
@@ -87,6 +89,7 @@ const exercises = {
       name: "弹力带踝背屈（半跪）", sets: "2组 × 10次", badge: "扭伤修复",
       timerType: "reps", reps: 10, sets_n: 2,
       brief: "半跪 + 弹力带套脚背，膝盖前推",
+      category: "warmup",
       setup: "弹力带一端固定在身后墙角或重物；弹力带套在踝关节前方（靠近脚背根部），张力调到有明显向后拉的感觉；进入半跪姿，训练腿在前。",
       steps: [
         "前脚掌完全平贴地面，脚跟踩实",
@@ -181,6 +184,7 @@ const exercises = {
       name: "猫牛式", sets: "2组 × 40秒", badge: "脊柱热身",
       timerType: "hold", duration: 40, sets_n: 2,
       brief: "四足跪，配合呼吸做脊柱前后流动",
+      category: "warmup",
       setup: "四足跪姿：双手撑地在肩膀正下方，十指张开分散压力；双膝在髋关节正下方；小腿平放、脚背贴地。",
       steps: [
         "起始位：脊柱自然中立",
@@ -244,6 +248,7 @@ const exercises = {
       name: "泡沫轴胸椎伸展", sets: "3组 × 30秒", badge: "T4–T8",
       timerType: "hold", duration: 30, sets_n: 3,
       brief: "泡沫轴横放胸背下，向后伸展打开胸椎",
+      category: "warmup",
       setup: "泡沫轴横放地板；仰卧使泡沫轴在肩胛骨下缘（T8–T12 之间）位置；双脚踩地、膝盖弯曲；双手抱头、肘关节并拢向上指（支撑颈椎）。",
       steps: [
         "起始位：臀部在地，泡沫轴在背中部",
@@ -265,6 +270,7 @@ const exercises = {
       name: "髋屈肌拉伸（弓步）", sets: "每侧 × 30秒", badge: "髋链",
       timerType: "hold", duration: 30, sets_n: 3,
       brief: "低弓步，骨盆像\"抽屉\"向前滑",
+      category: "cooldown",
       setup: "低弓步：右腿在前，膝盖弯 90度；左膝跪地在髋后方，左小腿平放；前脚与后膝距离约 50–60cm；上身直立，双手放前膝或轻扶髋部。",
       steps: [
         "稳定下身——前脚踩实、后膝不滑动",
@@ -282,24 +288,33 @@ const exercises = {
       breath: "持续深呼吸，每次呼气时让髋再往前推一点点"
     },
     {
-      name: "90/90 髋关节拉伸", sets: "每侧 × 45秒", badge: "髋灵活",
-      timerType: "hold", duration: 45, sets_n: 2,
-      brief: "坐姿，两腿各成90度，身体前倾",
-      setup: "坐在垫子上：右腿在前，屈膝90度、小腿朝前（像瑜伽坐姿）；左腿在后，屈膝90度、小腿朝侧面；双手撑地辅助。前腿大腿外侧应贴地。",
+      name: "90/90 髋关节切换", sets: "2组 × 每侧8次切换", badge: "髋灵活",
+      timerType: "reps", reps: 8, sets_n: 2,
+      brief: "坐姿，左右腿 90/90 动态切换（静态版需坐骨贴地无代偿）",
+      category: "cooldown",
+      variants: [
+        { label: "Lv.1 · 动态切换（当前推荐）", detail: "左右腿来回切换 90/90，每组每侧 8 次。腰椎保持中立，代偿就停",
+          timerType: "reps", reps: 8, sets_n: 2, sets: "2组 × 每侧8次切换" },
+        { label: "Lv.2 · 静态深压 · 45秒", detail: "进阶目标 · 两侧坐骨都能贴地无代偿时再做，每侧 45 秒静态保持",
+          timerType: "hold", duration: 45, sets_n: 2, sets: "2组 × 每侧45秒" },
+      ],
+      setup: "坐在垫子上：右腿在前屈膝 90°、小腿朝前；左腿在后屈膝 90°、小腿朝侧面。骨盆尽量水平，坐骨能贴到多少算多少——不要硬塞。双手撑地辅助。",
       steps: [
-        "调整姿势：骨盆水平，两个坐骨都触地",
-        "双手放在前腿前方地面支撑",
-        "上身缓慢向前倾，沿着前腿方向压下去",
-        "感受前腿臀部（臀中肌、梨状肌）的深层拉伸",
-        "保持45秒，调整腿的位置换边"
+        "【动态版起步】调整成起始 90/90 位置，右腿在前、左腿在后",
+        "双手撑地，上身坐起保持脊柱中立",
+        "双膝同时离地一点，从髋关节发起旋转——左腿转到前、右腿转到后",
+        "落到镜像 90/90 位置（现在左腿在前）",
+        "再反向切换回右腿在前——此为 1 次",
+        "每组每侧 8 次切换，共 2 组"
       ],
       cues: [
-        "⭐ 核心：保持骨盆水平——不能让后侧屁股抬起",
-        "如果前腿膝盖或髋外侧疼：减少前倾幅度，不要硬压",
-        "进阶：用肘支撑深度前倾",
-        "同时也能拉伸到后腿内侧的髋屈肌"
+        "⭐ 最关键：切换来自髋关节旋转，腰椎保持中立——腰在扭就是代偿",
+        "⭐ 坐骨贴不到地是正常的——不要硬压，把范围控制在无代偿的区间",
+        "动作慢 > 快：每次切换 2–3 秒，感受髋内/外旋的活动度",
+        "前腿膝外侧或髋外侧不适：缩小角度，不要硬推",
+        "进阶路径：动态做熟练 + 坐骨能贴地后，切到 Lv.2 静态 45 秒"
       ],
-      breath: "每次呼气时加深前倾"
+      breath: "切换过程呼气，落位稳定时吸气"
     },
   ],
   upper: [
@@ -334,6 +349,7 @@ const exercises = {
       name: "肩袖外旋激活（弹力带）", sets: "3组 × 15次", badge: "右肩",
       timerType: "reps", reps: 15, sets_n: 3,
       brief: "肘贴身侧，前臂像开门一样向外旋",
+      category: "warmup",
       setup: "弹力带一端固定在门把手或重物上（与肘同高）；站立侧对固定点，训练侧手握弹力带；肘关节屈曲90度、紧贴身侧肋骨——可以在腋下夹一条毛巾保持肘不离身。",
       steps: [
         "起始位：前臂横在身前，手指朝向固定点方向",
@@ -399,6 +415,7 @@ const exercises = {
       name: "胸椎旋转整合（站姿）", sets: "3组 × 每侧10次", badge: "整合",
       timerType: "reps", reps: 10, sets_n: 3,
       brief: "十字站姿，上身像风车一样旋转",
+      category: "cooldown",
       setup: "站立，双脚与髋同宽；膝盖微屈；核心激活；双臂水平向两侧展开（呈十字）；肩膀下沉、不耸起。",
       steps: [
         "起始位：十字站姿",
@@ -556,6 +573,8 @@ function init() {
   if (savedTheme === 'light') {
     document.body.classList.add('light');
     document.getElementById('themeToggle').textContent = '🌙';
+  } else {
+    document.getElementById('themeToggle').textContent = '☀️';
   }
 
   const now = new Date();
@@ -605,8 +624,29 @@ function renderSection(type) {
     </div>
   `;
 
-  exList.forEach((ex, i) => {
+  const categoryOrder = { warmup: 0, main: 1, cooldown: 2 };
+  const displayList = exList
+    .map((ex, sourceIdx) => ({ ex, sourceIdx }))
+    .sort((a, b) => {
+      const ca = categoryOrder[a.ex.category || 'main'] ?? 1;
+      const cb = categoryOrder[b.ex.category || 'main'] ?? 1;
+      if (ca !== cb) return ca - cb;
+      return a.sourceIdx - b.sourceIdx;
+    });
+
+  let lastCategory = null;
+  displayList.forEach(({ ex, sourceIdx }) => {
+    const i = sourceIdx;
     const key = `${type}-${i}`;
+    const cat = ex.category || 'main';
+    if (cat !== lastCategory) {
+      const label = { warmup: '热身 · Warmup', main: '正式 · Main', cooldown: '拉伸 · Cooldown' }[cat] || cat;
+      const divider = document.createElement('div');
+      divider.className = 'category-divider';
+      divider.textContent = label;
+      container.appendChild(divider);
+      lastCategory = cat;
+    }
     const isDone = state.completedToday.has(key);
     const isPartial = !isDone && state.setsPartial[key] > 0;
     const isCustom = ex.custom;
@@ -653,9 +693,33 @@ function showSection(type, tab) {
   tab.className = `tab active-${type}`;
 }
 
-function openTimer(ex, key, type) {
+function applyVariantOverrides(ex, v) {
+  if (!v) return false;
+  let changed = false;
+  ['timerType', 'reps', 'duration', 'sets_n', 'sets'].forEach(k => {
+    if (v[k] != null) { ex[k] = v[k]; changed = true; }
+  });
+  return changed;
+}
+
+function openTimer(rawEx, key, type) {
+  // Shallow copy so variant overrides don't mutate the source data
+  const ex = { ...rawEx };
   currentEx = { ex, key, type };
-  currentSet = 1;
+
+  // Apply saved variant (if any) before computing partial-resume bounds
+  let savedVariantKey = null;
+  let savedVariantIdx = 0;
+  if (rawEx.variants && rawEx.variants.length) {
+    savedVariantKey = `variant_${key}`;
+    savedVariantIdx = parseInt(localStorage.getItem(savedVariantKey) || '0', 10);
+    if (isNaN(savedVariantIdx) || savedVariantIdx >= rawEx.variants.length) savedVariantIdx = 0;
+    applyVariantOverrides(ex, rawEx.variants[savedVariantIdx]);
+  }
+
+  const partial = state.setsPartial[key] || 0;
+  currentSet = partial + 1;
+  if (currentSet > ex.sets_n) currentSet = 1;
   isRunning = false;
 
   const colors = { ankle: '#38BDF8', spine: '#F97316', upper: '#A78BFA' };
@@ -670,25 +734,39 @@ function openTimer(ex, key, type) {
   // Render variants picker if present
   const variantsWrap = document.getElementById('variantsWrap');
   const variantsList = document.getElementById('variantsList');
-  if (ex.variants && ex.variants.length) {
+  if (rawEx.variants && rawEx.variants.length) {
     variantsWrap.style.display = 'block';
     variantsList.innerHTML = '';
-    // Load saved variant or default to first (current level)
-    const savedKey = `variant_${key}`;
-    let selectedIdx = parseInt(localStorage.getItem(savedKey) || '0', 10);
-    if (isNaN(selectedIdx) || selectedIdx >= ex.variants.length) selectedIdx = 0;
 
-    ex.variants.forEach((v, i) => {
+    rawEx.variants.forEach((v, i) => {
       const opt = document.createElement('div');
-      opt.className = 'variant-option' + (i === selectedIdx ? ' selected' : '');
+      opt.className = 'variant-option' + (i === savedVariantIdx ? ' selected' : '');
       opt.innerHTML = `
         <div class="variant-option-label">${v.label}</div>
         <div class="variant-option-detail">${v.detail}</div>
       `;
       opt.onclick = () => {
-        localStorage.setItem(savedKey, i);
+        localStorage.setItem(savedVariantKey, i);
         document.querySelectorAll('.variant-option').forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
+
+        // If this variant overrides timer params, re-sync timer UI from fresh base
+        const hasTimerOverride = ['timerType','reps','duration','sets_n','sets']
+          .some(k => rawEx.variants[i][k] != null);
+        if (hasTimerOverride) {
+          // Reset ex to raw + new variant overrides (don't carry prior variant's overrides)
+          Object.keys(currentEx.ex).forEach(k => delete currentEx.ex[k]);
+          Object.assign(currentEx.ex, rawEx);
+          applyVariantOverrides(currentEx.ex, rawEx.variants[i]);
+          clearInterval(timerInterval);
+          isRunning = false;
+          currentSet = 1;
+          document.getElementById('timerSetsInfo').textContent = currentEx.ex.sets;
+          document.getElementById('timerCue').textContent = '';
+          renderSetDots();
+          resetTimerDisplay();
+          document.getElementById('timerMainBtn').textContent = currentEx.ex.timerType === 'reps' ? '完成本组' : '开始';
+        }
       };
       variantsList.appendChild(opt);
     });
@@ -744,6 +822,9 @@ function openTimer(ex, key, type) {
   renderSetDots();
   resetTimerDisplay();
   document.getElementById('timerMainBtn').textContent = ex.timerType === 'reps' ? '完成本组' : '开始';
+  if (partial > 0) {
+    document.getElementById('timerCue').textContent = `从第 ${currentSet} 组继续（已完成 ${partial}/${ex.sets_n}）`;
+  }
   document.getElementById('timerOverlay').classList.add('visible');
   // Scroll to top when opening
   document.getElementById('timerOverlay').scrollTop = 0;
@@ -843,11 +924,23 @@ function completeSet() {
 
 function markExDone() {
   state.completedToday.add(currentEx.key);
+  delete state.setsPartial[currentEx.key];
   const card = document.getElementById(`card-${currentEx.key}`);
-  if (card) card.classList.add('completed');
+  if (card) {
+    card.classList.remove('partial');
+    card.classList.add('completed');
+  }
   saveState();
   updateProgress();
   updateCheckinButton();
+}
+
+function manualIncrementSet() {
+  clearInterval(timerInterval);
+  clearInterval(countdownInterval);
+  document.getElementById('countdownOverlay').classList.remove('visible');
+  isRunning = false;
+  completeSet();
 }
 
 function closeTimer() {
@@ -858,7 +951,9 @@ function closeTimer() {
 
   const ex = currentEx.ex;
   const setsCompleted = currentSet - 1;
-  if (setsCompleted > 0 && currentSet <= ex.sets_n) {
+  const prevPartial = state.setsPartial[currentEx.key] || 0;
+  // Only prompt if user actually progressed this session beyond the prior partial
+  if (setsCompleted > prevPartial && currentSet <= ex.sets_n) {
     document.getElementById('exitPopupBody').textContent = `你完成了 ${setsCompleted} 组 · 共 ${ex.sets_n} 组`;
     document.getElementById('exitSaveBtn').textContent = `保存 ${setsCompleted} 组`;
     document.getElementById('exitPopupBackdrop').classList.add('visible');
@@ -880,10 +975,9 @@ function exitDiscard() {
 }
 
 function exitSave() {
-  const ex = currentEx.ex;
   const setsCompleted = currentSet - 1;
   state.setsPartial[currentEx.key] = setsCompleted;
-  delete state.completedToday[currentEx.key];
+  state.completedToday.delete(currentEx.key);
   saveState();
   renderSection(currentEx.type);
   updateProgress();
@@ -982,17 +1076,58 @@ async function doCheckin() {
 
 function buildSessionData(date) {
   const exerciseResults = [];
-  ['ankle', 'spine', 'upper'].forEach(type => {
-    getAllExercises(type).forEach((ex, i) => {
-      const key = `${type}-${i}`;
-      if (state.completedToday.has(key)) {
-        exerciseResults.push({ key, name: ex.name, sets_completed: ex.sets_n, sets_planned: ex.sets_n, complete: true });
-      } else if (state.setsPartial[key] > 0) {
-        exerciseResults.push({ key, name: ex.name, sets_completed: state.setsPartial[key], sets_planned: ex.sets_n, complete: false });
-      }
+  const touchedModules = new Set();
+  ['ankle', 'spine', 'upper'].forEach(module => {
+    getAllExercises(module).forEach((ex, i) => {
+      const key = `${module}-${i}`;
+      const done = state.completedToday.has(key);
+      const partial = state.setsPartial[key] || 0;
+      if (!done && partial === 0) return;
+      touchedModules.add(module);
+      exerciseResults.push({
+        id: ex.id || key,
+        name: ex.name,
+        module,
+        category: ex.category || 'main',
+        plannedSets: ex.sets_n,
+        completedSets: done ? ex.sets_n : partial,
+        completed: done,
+        ...(ex.timerType === 'reps' ? { plannedReps: ex.reps } : {}),
+        ...(ex.timerType === 'hold' ? { plannedDurationSec: ex.duration } : {}),
+      });
     });
   });
-  return { date, checkin_time: new Date().toISOString(), streak: state.streak, exercises: exerciseResults };
+  return {
+    date,
+    schemaVersion: 1,
+    streak: state.streak,
+    checkin_time: new Date().toISOString(),
+    modules: Array.from(touchedModules),
+    exercises: exerciseResults,
+  };
+}
+
+// Read-time compatibility — old files used snake_case field names.
+// Normalizes any prior-shape session into the v1 schema in memory.
+function normalizeSession(raw) {
+  if (!raw) return null;
+  if (raw.schemaVersion === 1) return raw;
+  return {
+    date: raw.date,
+    schemaVersion: 1,
+    streak: raw.streak,
+    checkin_time: raw.checkin_time,
+    modules: raw.modules || [],
+    exercises: (raw.exercises || []).map(e => ({
+      id: e.id || e.key,
+      name: e.name,
+      module: e.module || (typeof e.key === 'string' ? e.key.split('-')[0] : undefined),
+      category: e.category || 'main',
+      plannedSets: e.plannedSets ?? e.sets_planned,
+      completedSets: e.completedSets ?? e.sets_completed,
+      completed: e.completed ?? e.complete ?? false,
+    })),
+  };
 }
 
 function showSaveToast(status, date, errorMsg) {
@@ -1036,12 +1171,12 @@ function showReward(idx, isRevisit) {
   let html = '';
   if (r.cat === 'anatomy') {
     html = `
-      <div style="text-align:center; margin-bottom: 20px;">
-        <div style="font-family:'DM Mono', monospace; font-size: 20px; color: #E8DBC0; letter-spacing: 0.5px; font-weight: 500; line-height: 1.3; margin-bottom: 10px;">${r.name_en}</div>
-        <div style="height: 1px; width: 40px; background: #D4AF7A66; margin: 0 auto 10px;"></div>
-        <div style="font-family:'Ma Shan Zheng', serif; font-size: 28px; color: #D4AF7A; letter-spacing: 3px;">${r.name_zh}</div>
+      <div class="anatomy-header">
+        <div class="anatomy-name-en">${r.name_en}</div>
+        <div class="anatomy-divider"></div>
+        <div class="anatomy-name-zh">${r.name_zh}</div>
       </div>
-      <div class="reward-body" style="text-align:left; line-height:1.9; color:#D8C9A8;">${r.body}</div>
+      <div class="reward-body reward-body-left">${r.body}</div>
     `;
   } else if (r.quote) {
     html = `<div class="reward-quote">${r.quote.replace(/\n/g, '<br>')}</div>`;
@@ -1050,7 +1185,7 @@ function showReward(idx, isRevisit) {
     html = `<div class="reward-quote-en">"${r.quote_en.replace(/\n/g, '<br>')}"</div>`;
     if (r.body) html += `<div class="reward-body">${r.body}</div>`;
   } else {
-    html = `<div class="reward-body" style="font-size:15px; text-align:left; color:#D8C9A8; line-height:1.9;">${r.body}</div>`;
+    html = `<div class="reward-body reward-body-left reward-body-lg">${r.body}</div>`;
   }
 
   document.getElementById('rewardContent').innerHTML = html;
@@ -1283,7 +1418,7 @@ function deleteCustomExercise() {
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
   localStorage.setItem('rehab_theme', isLight ? 'light' : 'dark');
-  document.getElementById('themeToggle').textContent = isLight ? '🌙' : '☀';
+  document.getElementById('themeToggle').textContent = isLight ? '🌙' : '☀️';
 }
 
 /* ============ TOKEN SETUP ============ */
@@ -1329,7 +1464,7 @@ function retryCheckinSave() {
 /* ============ WINDOW EXPOSURE (required for inline onclick in HTML) ============ */
 Object.assign(window, {
   showSection, openTimer, closeTimer, toggleTimer, skipCountdown,
-  exitContinue, exitDiscard, exitSave,
+  exitContinue, exitDiscard, exitSave, manualIncrementSet,
   doCheckin, closeReward, openHistory, closeHistory,
   openAddExercise, closeAddExercise, saveCustomExercise, deleteCustomExercise,
   toggleTheme, openTokenSetup, closeTokenSetup, saveTokenSetup, clearTokenAndReset,

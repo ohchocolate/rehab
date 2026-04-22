@@ -743,13 +743,16 @@ body.light .timer-cue { color: #6b6055; }
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 6px 10px;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
   align-self: flex-start;
   margin-top: 4px;
 }
+.theme-toggle:hover { border-color: var(--gold); }
 .theme-toggle:active { transform: scale(0.95); }
 
 /* ============ COUNTDOWN OVERLAY ============ */
@@ -921,3 +924,124 @@ body.light .countdown-overlay { background: rgba(245, 241, 234, 0.92); }
   overflow-y: auto;
   justify-content: flex-start;
 }
+
+/* ============ SETTINGS TOGGLE (persistent gear) ============ */
+.settings-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.settings-toggle:hover { border-color: var(--gold); }
+.settings-toggle:active { transform: scale(0.95); }
+
+/* ============ CATEGORY DIVIDER ============ */
+.category-divider {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 14px 2px 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--border);
+}
+.category-divider:first-of-type { margin-top: 4px; }
+
+/* ============ MANUAL +1 SET BUTTON ============ */
+.manual-plus-btn {
+  display: block;
+  margin: 10px auto 0;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.manual-plus-btn:hover { color: var(--text); border-color: var(--text); }
+.manual-plus-btn:active { transform: scale(0.96); }
+
+/* ============ ANATOMY CARD (refactored from inline) ============ */
+.anatomy-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.anatomy-name-en {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  color: #E8DBC0;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.anatomy-divider {
+  height: 1px;
+  width: 40px;
+  background: #D4AF7A66;
+  margin: 0 auto 10px;
+}
+.anatomy-name-zh {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 28px;
+  color: #D4AF7A;
+  letter-spacing: 3px;
+}
+.reward-body-left {
+  text-align: left;
+  line-height: 1.9;
+  color: #D8C9A8;
+}
+.reward-body-lg {
+  font-size: 15px;
+}
+
+/* ============ LIGHT-MODE REWARD / CELEBRATION CONTRAST FIX ============ */
+/* Never use muted/dim tones for milestone content — use strong accent or near-primary text */
+body.light .reward-overlay {
+  background: radial-gradient(ellipse at top, #FAF4E6 0%, var(--bg) 70%);
+}
+body.light .reward-card {
+  background: linear-gradient(145deg, #FFFCF4 0%, #F5EDD8 100%);
+  border-color: #B8895A55;
+}
+body.light .reward-card::before {
+  background: radial-gradient(circle, #B8895A22 0%, transparent 40%);
+}
+body.light .reward-category { color: #8B6E3F; }
+body.light .reward-label { color: #8B6E3F; }
+body.light .reward-stars { color: #B8895A; }
+body.light .reward-quote { color: #2E2212; font-weight: 500; }
+body.light .reward-quote-en { color: #2E2212; font-weight: 500; }
+body.light .reward-body { color: #4A3B24; }
+body.light .reward-body-left { color: #4A3B24; }
+body.light .reward-note { color: #8B6E3F; }
+body.light .anatomy-name-en { color: #2E2212; }
+body.light .anatomy-name-zh { color: #8B5A24; }
+body.light .anatomy-divider { background: #B8895A88; }
+body.light .history-item { border-left-color: #B8895A; background: #FFFCF4; }
+body.light .history-preview { color: #3A3020; }
+body.light .history-date { color: #6B5434; }
+body.light .history-cat { background: #B8895A22; color: #8B5A24; }
+body.light .history-title { color: var(--text); }
+body.light .cal-dot.done { background: #B8895A; color: #FFFCF4; }
+
+/* Day-mode streak-pill: darker gold for legibility on warm-white bg */
+body.light .streak-pill {
+  background: linear-gradient(135deg, #F5EDD8, #EDE3C9);
+  border-color: #B8895A55;
+}
+body.light .streak-num { color: #8B5A24; }
