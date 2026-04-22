@@ -1,6 +1,8 @@
 {
   "date": "2026-04-22",
-  "checkin_time": "2026-04-22T14:15:42.876Z",
-  "streak": 1,
+  "schemaVersion": 1,
+  "streak": 0,
+  "checkin_time": "2026-04-22T14:25:56.938Z",
+  "modules": [],
   "exercises": []
 }
