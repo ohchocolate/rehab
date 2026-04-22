@@ -1,0 +1,77 @@
+{
+  "date": "2026-04-21",
+  "checkin_time": "2026-04-22T01:38:05.225Z",
+  "streak": 1,
+  "exercises": [
+    {
+      "key": "ankle-0",
+      "name": "半跪姿踝背屈活动",
+      "sets_completed": 2,
+      "sets_planned": 2,
+      "complete": true
+    },
+    {
+      "key": "ankle-1",
+      "name": "双侧提踵",
+      "sets_completed": 3,
+      "sets_planned": 3,
+      "complete": true
+    },
+    {
+      "key": "ankle-2",
+      "name": "足弓强化 Foot Dome",
+      "sets_completed": 2,
+      "sets_planned": 2,
+      "complete": true
+    },
+    {
+      "key": "ankle-3",
+      "name": "踝关节内外翻 AROM",
+      "sets_completed": 2,
+      "sets_planned": 2,
+      "complete": true
+    },
+    {
+      "key": "ankle-5",
+      "name": "单腿站立平衡",
+      "sets_completed": 3,
+      "sets_planned": 3,
+      "complete": true
+    },
+    {
+      "key": "ankle-6",
+      "name": "负重登箱 + 单腿90°悬停",
+      "sets_completed": 3,
+      "sets_planned": 3,
+      "complete": true
+    },
+    {
+      "key": "spine-1",
+      "name": "跪姿胸椎旋转",
+      "sets_completed": 3,
+      "sets_planned": 3,
+      "complete": true
+    },
+    {
+      "key": "spine-3",
+      "name": "泡沫轴胸椎伸展",
+      "sets_completed": 3,
+      "sets_planned": 3,
+      "complete": true
+    },
+    {
+      "key": "spine-5",
+      "name": "90/90 髋关节拉伸",
+      "sets_completed": 2,
+      "sets_planned": 2,
+      "complete": true
+    },
+    {
+      "key": "upper-3",
+      "name": "KB / 哑铃地板推",
+      "sets_completed": 4,
+      "sets_planned": 4,
+      "complete": true
+    }
+  ]
+}
