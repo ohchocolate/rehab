@@ -10,6 +10,7 @@
   --ankle: #38BDF8;
   --spine: #F97316;
   --upper: #A78BFA;
+  --lower: #10B981;
   --done: #34D399;
   --gold: #D4AF7A;
 }
@@ -59,7 +60,7 @@ body {
 .progress-bar-wrap { margin: 16px 0 0; height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--ankle), var(--spine), var(--upper));
+  background: linear-gradient(90deg, var(--ankle), var(--spine), var(--upper), var(--lower));
   border-radius: 2px;
   transition: width 0.5s ease;
 }
@@ -81,6 +82,7 @@ body {
 .tab.active-ankle { background: var(--ankle); color: #000; border-color: var(--ankle); }
 .tab.active-spine { background: var(--spine); color: #000; border-color: var(--spine); }
 .tab.active-upper { background: var(--upper); color: #000; border-color: var(--upper); }
+.tab.active-lower { background: var(--lower); color: #000; border-color: var(--lower); }
 
 .section { padding: 16px 20px 0; }
 .section-header {
@@ -227,6 +229,7 @@ body {
 .ex-card.ankle::before { background: var(--ankle); }
 .ex-card.spine::before { background: var(--spine); }
 .ex-card.upper::before { background: var(--upper); }
+.ex-card.lower::before { background: var(--lower); }
 .ex-card.completed { opacity: 0.5; }
 
 .ex-top { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -242,6 +245,7 @@ body {
 .ankle .ex-badge { background: #38BDF811; color: var(--ankle); }
 .spine .ex-badge { background: #F9731611; color: var(--spine); }
 .upper .ex-badge { background: #A78BFA11; color: var(--upper); }
+.lower .ex-badge { background: #10B98111; color: var(--lower); }
 
 .ex-sets { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 5px; }
 .ex-cue { font-size: 12px; color: #8899AA; margin-top: 8px; line-height: 1.6; }

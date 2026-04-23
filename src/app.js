@@ -1,4 +1,4 @@
-import { loadStoredConfig, initGitHub, writeSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-04-22c';
+import { loadStoredConfig, initGitHub, writeSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-04-22d';
 
 const exercises = {
   ankle: [
@@ -434,6 +434,125 @@ const exercises = {
       ],
       breath: "旋转时呼气，回位吸气"
     },
+  ],
+  lower: [
+    {
+      name: "Glute Bridge 臀桥", sets: "2组 × 12次", badge: "臀肌激活",
+      timerType: "reps", reps: 12, sets_n: 2,
+      brief: "仰卧屈膝，骨盆后倾再顶起臀部",
+      category: "warmup",
+      setup: "仰卧垫上，双膝弯曲约90°，双脚与髋同宽，脚跟距离臀部一拳；手臂放身侧，掌心朝上；下背贴地，骨盆先轻微后倾。",
+      steps: [
+        "脚跟踩实，感受臀部收紧（不是腰部）",
+        "骨盆先后倾（下背贴地），再慢慢向天花板顶起髋部",
+        "最高点保持1秒——从肩到膝应该是一条直线",
+        "臀部主动挤压（想象核桃夹紧），不要靠腰椎过伸",
+        "缓慢落下，感受臀部下沉，不要完全放松"
+      ],
+      cues: [
+        "⭐ 臀部发力不是腰部——如果腰疼说明没用对",
+        "膝盖不要内扣，始终朝脚尖方向",
+        "脚跟压地，脚尖保持轻松——用后链而不是股四",
+        "节奏：2秒上，1秒顶，2秒下"
+      ],
+      breath: "顶起时呼气，落下时吸气"
+    },
+    {
+      name: "弹力带螃蟹步", sets: "2组 × 10次/侧", badge: "髋外展",
+      timerType: "reps", reps: 10, sets_n: 2,
+      brief: "弹力带套膝上，半蹲侧向迈步",
+      category: "warmup",
+      setup: "弹力带套在膝盖上方（或脚踝上方，更难）；双脚与髋同宽；膝盖微屈下蹲到1/4深度；躯干直立稍前倾。",
+      steps: [
+        "保持半蹲，重心略靠前",
+        "一只脚向外侧迈出一步（对抗弹力带张力）",
+        "另一只脚跟上但不完全收拢——保留弹力带张力",
+        "每一步膝盖朝脚尖方向，不要内扣",
+        "向一侧走10步，再反方向走10步"
+      ],
+      cues: [
+        "⭐ 全程不要站直——躯干保持低位",
+        "感受臀部外侧（gluteus medius）在发力，不是腿前侧",
+        "骨盆保持水平，不要向迈出侧倾斜",
+        "小步快走不如慢而稳——每步都要对抗张力"
+      ],
+      breath: "侧迈呼气，收回吸气"
+    },
+    {
+      name: "徒手深蹲", sets: "3组 × 12次", badge: "PT放行",
+      timerType: "reps", reps: 12, sets_n: 3,
+      brief: "双脚与肩同宽，髋膝同时屈，蹲到大腿平行",
+      category: "main",
+      setup: "双脚与肩同宽或略宽，脚尖稍外展（10-15°）；双手前伸或抱胸；脚掌三点受力（拇指根 + 小指根 + 脚跟）。",
+      steps: [
+        "起势：髋部先向后坐，像要坐在身后的椅子上",
+        "同时膝盖顺着脚尖方向下蹲——髋膝同时动，不是先膝后髋",
+        "下降到大腿与地面平行（或个人活动度极限）",
+        "脚掌持续压地，膝盖稳定朝脚尖方向",
+        "蹬起：脚掌发力推地，臀部主动挤压带动身体回位"
+      ],
+      cues: [
+        "⭐ 膝盖不内扣（valgus）——镜子检查或手机侧录回看",
+        "下背始终保持自然曲线，不要弓腰",
+        "蹲到底时重心应该在脚掌中后段，不是脚尖",
+        "无痛范围内蹲——PT虽放行，起步仍以活动度优先",
+        "感觉轻松后，下次可加到3×15或加负重（水壶/哑铃）"
+      ],
+      breath: "下蹲吸气，起身呼气"
+    },
+    {
+      name: "单腿 RDL", sets: "3组 × 每侧8次（扶墙）", badge: "Patch 1 核心",
+      timerType: "reps", reps: 8, sets_n: 3,
+      brief: "单腿支撑，髋铰链前倾；每组左右各8次（当前扶墙）",
+      category: "main",
+      variants: [
+        { label: "Lv.1 · 扶墙 · 当前阶段", detail: "手扶墙/椅背降低平衡压力，专注髋铰链模式与踝稳定",
+          reps: 8, sets_n: 3, sets: "3组 × 每侧8次（扶墙）" },
+        { label: "Lv.2 · 自由立", detail: "脱离墙面，手臂自然下垂或抱胸，对踝本体感觉要求更高",
+          reps: 8, sets_n: 3, sets: "3组 × 每侧8次（自由立）" },
+        { label: "Lv.3 · 持哑铃 / 闭眼", detail: "持10lb哑铃增加后链负重，或闭眼强化本体感觉（非同时）",
+          reps: 8, sets_n: 3, sets: "3组 × 每侧8次（进阶）" },
+      ],
+      setup: "单腿站立（先右后左——右踝是结构重点先做），膝盖微屈不锁死；对侧腿向后微抬，脚尖不点地；当前阶段手扶墙/椅背保持平衡。",
+      steps: [
+        "以支撑髋为支点做\"铰链\"——髋向后推，上身向前倾",
+        "同时对侧腿向后伸，保持与地面大致平行",
+        "从头到后脚跟应该是一条直线（不是弯曲）",
+        "下降到支撑侧腘绳肌感到明显拉伸即止（上身与地面约45°）",
+        "支撑脚掌压地，臀部挤压带动身体回位",
+        "完成8次换边，共3组"
+      ],
+      cues: [
+        "⭐ 支撑膝始终微屈不变——不要变成屈膝深蹲",
+        "骨盆保持水平——不要\"打开\"成侧面（抬腿侧髋向上翻）",
+        "重心在支撑脚掌中间，踝关节稳定不向内/外倒",
+        "从右腿开始（ankle 结构重点侧优先）",
+        "8次动作质量 > 12次颤巍巍晃出来",
+        "进阶目标：milestone「单腿RDL自由立稳5秒」"
+      ],
+      breath: "前倾吸气，回位呼气"
+    },
+    {
+      name: "鸽式拉伸", sets: "2组 × 每侧30秒", badge: "臀/梨状肌",
+      timerType: "hold", duration: 30, sets_n: 2,
+      brief: "前腿屈膝90°，后腿后伸，上身缓慢前趴",
+      category: "cooldown",
+      setup: "跪姿开始；右腿前伸屈膝约90°，小腿横于身前（像数字4）；左腿完全向后伸直；双手撑地保持骨盆水平。",
+      steps: [
+        "骨盆保持朝前（不要向右歪坐）",
+        "如果右臀不能落地：右臀下方垫毛巾或瑜伽砖",
+        "双手慢慢向前行走，上身前趴到舒适极限",
+        "保持30秒，感受右臀外侧 / 梨状肌的深层拉伸",
+        "换边，左腿在前重复"
+      ],
+      cues: [
+        "⭐ 不追求上身完全趴地——骨盆水平 > 前倾深度",
+        "右膝或右踝有刺痛：调整角度，不要硬压",
+        "深呼吸——呼气时可以多沉一点",
+        "左髋屈肌（腰大肌）也会同步拉伸"
+      ],
+      breath: "深长呼吸，每次呼气多沉一点"
+    },
   ]
 };
 
@@ -639,6 +758,7 @@ function init() {
   renderSection('ankle');
   renderSection('spine');
   renderSection('upper');
+  renderSection('lower');
   updateProgress();
   updateStreak();
   updateCheckinButton();
@@ -660,8 +780,8 @@ function getAllExercises(type) {
 function loadCustomExercises() {
   try {
     const raw = localStorage.getItem('rehab_custom_ex_v1');
-    return raw ? JSON.parse(raw) : { ankle: [], spine: [], upper: [] };
-  } catch(e) { return { ankle: [], spine: [], upper: [] }; }
+    return raw ? JSON.parse(raw) : { ankle: [], spine: [], upper: [], lower: [] };
+  } catch(e) { return { ankle: [], spine: [], upper: [], lower: [] }; }
 }
 
 function saveCustomExercises(data) {
@@ -673,7 +793,9 @@ function renderSection(type) {
   const exList = getAllExercises(type);
   const sectionTitle =
     type === 'ankle' ? '右踝康复 · HEP处方' :
-    type === 'spine' ? '胸腰椎拉伸 · 灵活度恢复' : '上肢激活 · 肩袖修复';
+    type === 'spine' ? '胸腰椎拉伸 · 灵活度恢复' :
+    type === 'upper' ? '上肢激活 · 肩袖修复' :
+    '下肢力量 · PT 放行复健';
 
   container.innerHTML = `
     <div class="section-header">
@@ -780,8 +902,8 @@ function openTimer(rawEx, key, type) {
   if (currentSet > ex.sets_n) currentSet = 1;
   isRunning = false;
 
-  const colors = { ankle: '#38BDF8', spine: '#F97316', upper: '#A78BFA' };
-  const sectionNames = { ankle: '右踝康复', spine: '胸腰椎拉伸', upper: '上肢激活' };
+  const colors = { ankle: '#38BDF8', spine: '#F97316', upper: '#A78BFA', lower: '#10B981' };
+  const sectionNames = { ankle: '右踝康复', spine: '胸腰椎拉伸', upper: '上肢激活', lower: '下肢力量' };
 
   document.getElementById('timerSection').textContent = sectionNames[type];
   document.getElementById('timerName').textContent = ex.name;
@@ -1137,7 +1259,7 @@ async function doCheckin() {
 function buildSessionData(date) {
   const exerciseResults = [];
   const touchedModules = new Set();
-  ['ankle', 'spine', 'upper'].forEach(module => {
+  ['ankle', 'spine', 'upper', 'lower'].forEach(module => {
     getAllExercises(module).forEach((ex, i) => {
       const key = `${module}-${i}`;
       const done = state.completedToday.has(key);
@@ -1451,6 +1573,7 @@ function saveCustomExercise() {
   renderSection('ankle');
   renderSection('spine');
   renderSection('upper');
+  renderSection('lower');
   updateProgress();
   updateCheckinButton();
   closeAddExercise();
@@ -1470,6 +1593,7 @@ function deleteCustomExercise() {
   renderSection('ankle');
   renderSection('spine');
   renderSection('upper');
+  renderSection('lower');
   updateProgress();
   updateCheckinButton();
   closeAddExercise();

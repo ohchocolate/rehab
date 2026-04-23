@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="每日康复">
 <title>每日康复训练</title>
-<link rel="stylesheet" href="styles/main.css?v=2026-04-22c">
+<link rel="stylesheet" href="styles/main.css?v=2026-04-22d">
 </head>
 <body>
 
@@ -37,11 +37,13 @@
   <button class="tab active-ankle" onclick="showSection('ankle', this)">🦶 右踝康复</button>
   <button class="tab" onclick="showSection('spine', this)">🌀 胸腰椎拉伸</button>
   <button class="tab" onclick="showSection('upper', this)">💪 上肢激活</button>
+  <button class="tab" onclick="showSection('lower', this)">🦵 下肢力量</button>
 </div>
 
 <div id="section-ankle" class="section"></div>
 <div id="section-spine" class="section" style="display:none"></div>
 <div id="section-upper" class="section" style="display:none"></div>
+<div id="section-lower" class="section" style="display:none"></div>
 
 <div class="token-notice" id="tokenNotice" style="display:none">
   <span>未设置 GitHub Token，打卡数据仅保存在本设备</span>
@@ -171,6 +173,7 @@
         <div class="form-radio" data-mod="ankle">🦶 右踝康复</div>
         <div class="form-radio" data-mod="spine">🌀 胸腰椎</div>
         <div class="form-radio" data-mod="upper">💪 上肢</div>
+        <div class="form-radio" data-mod="lower">🦵 下肢</div>
       </div>
     </div>
 
@@ -237,6 +240,6 @@
   </div>
 </div>
 
-<script type="module" src="src/app.js?v=2026-04-22c"></script>
+<script type="module" src="src/app.js?v=2026-04-22d"></script>
 </body>
 </html>
