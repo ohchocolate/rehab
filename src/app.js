@@ -1,4 +1,4 @@
-import { loadStoredConfig, initGitHub, writeSession, hasToken, GitHubError } from './github.js';
+import { loadStoredConfig, initGitHub, writeSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-04-22c';
 
 const exercises = {
   ankle: [
@@ -557,6 +557,61 @@ function saveState() {
   } catch(e) { console.log('Save err', e); }
 }
 
+// Derive a stable reward index from a date string — used for history entries
+// synced from GitHub where rewardIdx wasn't stored.
+function derivedRewardIdx(date) {
+  let hash = 0;
+  for (let i = 0; i < date.length; i++) hash = (hash * 31 + date.charCodeAt(i)) | 0;
+  return Math.abs(hash) % rewards.length;
+}
+
+function getRewardIdxForEntry(h) {
+  return h.rewardIdx != null ? h.rewardIdx : derivedRewardIdx(h.date);
+}
+
+function recomputeStreak() {
+  const dates = new Set(state.checkinHistory.map(h => h.date));
+  const today = getTodayKey();
+  const d = new Date();
+  if (!dates.has(today)) d.setDate(d.getDate() - 1);
+  let s = 0;
+  while (dates.has(getDateKey(d))) {
+    s++;
+    d.setDate(d.getDate() - 1);
+  }
+  state.streak = s;
+  state.lastCheckinDate = dates.has(today)
+    ? today
+    : (state.checkinHistory.length ? state.checkinHistory[state.checkinHistory.length - 1].date : null);
+}
+
+// Pull session dates from GitHub and merge into local checkinHistory.
+// Runs async on init — UI renders immediately with local data, streak updates when done.
+async function syncHistoryFromGitHub() {
+  if (!hasToken()) return;
+  try {
+    const files = await listSessions();
+    const localDates = new Set(state.checkinHistory.map(h => h.date));
+    let added = false;
+    files.forEach(f => {
+      const date = f.name.replace('.json', '');
+      if (!localDates.has(date)) {
+        state.checkinHistory.push({ date });
+        added = true;
+      }
+    });
+    if (added) {
+      state.checkinHistory.sort((a, b) => (a.date < b.date ? -1 : 1));
+      recomputeStreak();
+      saveState();
+      updateStreak();
+      updateCheckinButton();
+    }
+  } catch (err) {
+    console.warn('History sync failed', err);
+  }
+}
+
 let currentEx = null;
 let timerInterval = null;
 let countdownInterval = null;
@@ -591,6 +646,9 @@ function init() {
   if (!hasToken()) {
     document.getElementById('tokenNotice').style.display = 'block';
   }
+
+  // Pull historical dates from GitHub so streak/history survive cache clears & device switches
+  syncHistoryFromGitHub();
 }
 
 function getAllExercises(type) {
@@ -952,8 +1010,9 @@ function closeTimer() {
   const ex = currentEx.ex;
   const setsCompleted = currentSet - 1;
   const prevPartial = state.setsPartial[currentEx.key] || 0;
-  // Only prompt if user actually progressed this session beyond the prior partial
-  if (setsCompleted > prevPartial && currentSet <= ex.sets_n) {
+  const isDone = state.completedToday.has(currentEx.key);
+  // Only prompt if the exercise isn't already complete and user progressed beyond prior partial
+  if (!isDone && setsCompleted > prevPartial && currentSet <= ex.sets_n) {
     document.getElementById('exitPopupBody').textContent = `你完成了 ${setsCompleted} 组 · 共 ${ex.sets_n} 组`;
     document.getElementById('exitSaveBtn').textContent = `保存 ${setsCompleted} 组`;
     document.getElementById('exitPopupBackdrop').classList.add('visible');
@@ -1033,7 +1092,7 @@ async function doCheckin() {
 
   if (state.lastCheckinDate === today) {
     const todayEntry = state.checkinHistory.find(h => h.date === today);
-    if (todayEntry) showReward(todayEntry.rewardIdx, true);
+    if (todayEntry) showReward(getRewardIdxForEntry(todayEntry), true);
     return;
   }
 
@@ -1046,7 +1105,8 @@ async function doCheckin() {
   }
   state.lastCheckinDate = today;
 
-  const recentIndices = state.checkinHistory.slice(-15).map(h => h.rewardIdx);
+  const recentIndices = state.checkinHistory.slice(-15)
+    .map(h => h.rewardIdx).filter(i => i != null);
   const available = rewards.map((_, i) => i).filter(i => !recentIndices.includes(i));
   const pool = available.length > 0 ? available : rewards.map((_, i) => i);
   const rewardIdx = pool[Math.floor(Math.random() * pool.length)];
@@ -1227,7 +1287,8 @@ function openHistory() {
   } else {
     list.innerHTML = '';
     [...state.checkinHistory].reverse().forEach(h => {
-      const r = rewards[h.rewardIdx];
+      const idx = getRewardIdxForEntry(h);
+      const r = rewards[idx];
       if (!r) return;
       const catEmoji = { anatomy: '🦴', quote_en: '📖', monument: '🏛', nature: '🌿' }[r.cat] || '✦';
       const preview = r.cat === 'anatomy' ? `${r.name_en} · ${r.name_zh}` :
@@ -1242,7 +1303,7 @@ function openHistory() {
       `;
       item.onclick = () => {
         closeHistory();
-        showReward(h.rewardIdx, true);
+        showReward(idx, true);
       };
       list.appendChild(item);
     });
@@ -1438,6 +1499,7 @@ function saveTokenSetup() {
   document.getElementById('tokenNotice').style.display = 'none';
   closeTokenSetup();
   showSaveToast('success_token');
+  syncHistoryFromGitHub();
 }
 
 function clearTokenAndReset() {
