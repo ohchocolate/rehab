@@ -1024,19 +1024,19 @@ body.light .reward-card {
   border-color: #B8895A55;
 }
 body.light .reward-card::before {
-  background: radial-gradient(circle, #B8895A22 0%, transparent 40%);
+  background: radial-gradient(circle, #B8895A0D 0%, transparent 40%);
 }
-body.light .reward-category { color: #8B6E3F; }
-body.light .reward-label { color: #8B6E3F; }
-body.light .reward-stars { color: #B8895A; }
-body.light .reward-quote { color: #2E2212; font-weight: 500; }
-body.light .reward-quote-en { color: #2E2212; font-weight: 500; }
-body.light .reward-body { color: #4A3B24; }
-body.light .reward-body-left { color: #4A3B24; }
-body.light .reward-note { color: #8B6E3F; }
-body.light .anatomy-name-en { color: #2E2212; }
-body.light .anatomy-name-zh { color: #8B5A24; }
-body.light .anatomy-divider { background: #B8895A88; }
+body.light .reward-category { color: #5C4321; font-weight: 600; }
+body.light .reward-label { color: #5C4321; font-weight: 500; }
+body.light .reward-stars { color: #8B5A24; }
+body.light .reward-quote { color: #1A0F05; font-weight: 500; }
+body.light .reward-quote-en { color: #1A0F05; font-weight: 500; }
+body.light .reward-body { color: #1F160A; font-weight: 500; }
+body.light .reward-body-left { color: #1F160A; font-weight: 500; }
+body.light .reward-note { color: #5C4321; font-weight: 500; }
+body.light .anatomy-name-en { color: #1A0F05; font-weight: 600; }
+body.light .anatomy-name-zh { color: #5A3710; font-weight: 700; }
+body.light .anatomy-divider { background: #8B5A24; }
 body.light .history-item { border-left-color: #B8895A; background: #FFFCF4; }
 body.light .history-preview { color: #3A3020; }
 body.light .history-date { color: #6B5434; }
