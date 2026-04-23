@@ -1,8 +1,14 @@
 {
   "date": "2026-04-22",
-  "schemaVersion": 1,
-  "streak": 0,
-  "checkin_time": "2026-04-23T01:11:16.017Z",
-  "modules": [],
-  "exercises": []
+  "checkin_time": "2026-04-23T01:38:33.162Z",
+  "streak": 2,
+  "exercises": [
+    {
+      "key": "ankle-1",
+      "name": "双侧提踵",
+      "sets_completed": 3,
+      "sets_planned": 3,
+      "complete": true
+    }
+  ]
 }
