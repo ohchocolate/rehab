@@ -1,0 +1,41 @@
+{
+  "date": "2026-04-25",
+  "schemaVersion": 1,
+  "streak": 5,
+  "checkin_time": "2026-04-26T02:06:20.895Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-0",
+      "name": "半跪姿踝背屈活动",
+      "module": "ankle",
+      "category": "warmup",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 15
+    },
+    {
+      "id": "ankle-1",
+      "name": "双侧提踵",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedReps": 10
+    },
+    {
+      "id": "ankle-3",
+      "name": "踝关节内外翻 AROM",
+      "module": "ankle",
+      "category": "warmup",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 10
+    }
+  ]
+}
