@@ -1,0 +1,32 @@
+{
+  "date": "2026-04-27",
+  "schemaVersion": 1,
+  "streak": 7,
+  "checkin_time": "2026-04-28T01:48:45.550Z",
+  "modules": [
+    "ankle",
+    "spine"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-0",
+      "name": "半跪姿踝背屈活动",
+      "module": "ankle",
+      "category": "warmup",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 15
+    },
+    {
+      "id": "spine-4",
+      "name": "髋屈肌拉伸（弓步）",
+      "module": "spine",
+      "category": "cooldown",
+      "plannedSets": 3,
+      "completedSets": 2,
+      "completed": false,
+      "plannedDurationSec": 30
+    }
+  ]
+}
