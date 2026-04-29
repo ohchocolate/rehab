@@ -1,4 +1,4 @@
-import { loadStoredConfig, initGitHub, writeSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-04-22d';
+import { loadStoredConfig, initGitHub, writeSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-04-22h';
 
 const exercises = {
   ankle: [
@@ -556,6 +556,63 @@ const exercises = {
   ]
 };
 
+// ---------------------------------------------------------------------------
+// Training Template Registry
+// 6 archetypes the bandit agent (rehab-bandit project) will eventually choose
+// between. For now: powers the "今日建议" card and tags each session JSON
+// with template_id so historical data is bandit-ready.
+// ---------------------------------------------------------------------------
+const trainingTemplates = [
+  {
+    id: 'upper_ankle',
+    icon: '💪🦶',
+    name: '上肢 + 右踝',
+    description: '上肢激活配合踝关节复健，肩胛与踝稳定一起练',
+    modules: ['upper', 'ankle'],
+    travelOK: false,
+  },
+  {
+    id: 'lower_ankle',
+    icon: '🦵🦶',
+    name: '下肢 + 右踝',
+    description: 'PT 放行的下肢力量与右踝控制结合，重点单腿 RDL',
+    modules: ['lower', 'ankle'],
+    travelOK: false,
+  },
+  {
+    id: 'stretch_ankle',
+    icon: '🌀🦶',
+    name: '胸腰椎 + 右踝',
+    description: '拉伸为主，胸椎旋转 + 踝活动度，低强度恢复日',
+    modules: ['spine', 'ankle'],
+    travelOK: true,
+  },
+  {
+    id: 'travel_minimal',
+    icon: '✈️',
+    name: '旅行极简',
+    description: '酒店/地板可做：胸椎拉伸 + 踝关节 + 上肢激活，无器械',
+    modules: ['spine', 'ankle', 'upper'],
+    travelOK: true,
+  },
+  {
+    id: 'ankle_only',
+    icon: '🦶',
+    name: '只做右踝',
+    description: '只跑右踝 HEP 处方，10 分钟内完成',
+    modules: ['ankle'],
+    travelOK: true,
+  },
+  {
+    id: 'rest',
+    icon: '😴',
+    name: '休息日',
+    description: '主动休息 — 散步、拉伸、记录身体感觉',
+    modules: [],
+    travelOK: true,
+  },
+];
+
 const rewards = [
   { cat: "anatomy", name_en: "Peroneus Longus", name_zh: "腓骨长肌", category: "踝关节外翻 · 足弓支撑", body: "走行于小腿外侧，肌腱绕过外踝后方，穿越足底止于第一跖骨基底。是踝关节外翻和纵向足弓支撑的关键——长期薄弱会导致\"反复扭伤\"循环。✦ 关联你当下的右踝修复：弹力带抗阻外翻正是针对它。" },
   { cat: "anatomy", name_en: "Vastus Medialis Obliquus (VMO)", name_zh: "股内侧斜肌", category: "膝关节内侧 · 髌骨轨迹控制", body: "大腿内侧那块\"泪滴形\"的肌肉。任何膝关节损伤后，它是第一个萎缩的肌肉，也是最后一个自然恢复的。髌骨轨迹偏移的根源几乎都在这里。✦ 激活方式：深蹲最后15度的主动挤压。" },
@@ -630,6 +687,7 @@ let state = {
   streak: 0,
   lastCheckinDate: null,
   checkinHistory: [],
+  suggestionIdx: 0,
 };
 
 function getDateKey(date) {
@@ -759,6 +817,7 @@ function init() {
   renderSection('spine');
   renderSection('upper');
   renderSection('lower');
+  renderSuggestion();
   updateProgress();
   updateStreak();
   updateCheckinButton();
@@ -1184,6 +1243,106 @@ function updateStreak() {
   document.getElementById('streakNum').textContent = state.streak;
 }
 
+/* ============ TRAINING TEMPLATE SUGGESTION (rehab-bandit prep) ============ */
+
+function isTravelMode() {
+  return localStorage.getItem('rehab_travel_mode') === '1';
+}
+
+function setTravelMode(on) {
+  if (on) localStorage.setItem('rehab_travel_mode', '1');
+  else localStorage.removeItem('rehab_travel_mode');
+}
+
+function toggleTravelMode() {
+  setTravelMode(!isTravelMode());
+  state.suggestionIdx = 0; // reset to first candidate of new pool
+  renderSuggestion();
+}
+
+function getCandidateTemplates() {
+  const travel = isTravelMode();
+  return trainingTemplates.filter(t => travel ? t.travelOK : true);
+}
+
+// Stable seed so same date keeps same default suggestion across reloads
+function suggestionSeed(date) {
+  let h = 0;
+  for (let i = 0; i < date.length; i++) h = (h * 31 + date.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function getCurrentSuggestion() {
+  const candidates = getCandidateTemplates();
+  if (candidates.length === 0) return null;
+  const today = getTodayKey();
+  const seed = suggestionSeed(today);
+  const idx = (seed + (state.suggestionIdx || 0)) % candidates.length;
+  return candidates[idx];
+}
+
+function cycleSuggestion() {
+  state.suggestionIdx = (state.suggestionIdx || 0) + 1;
+  renderSuggestion();
+}
+
+function renderSuggestion() {
+  const card = document.getElementById('suggestionCard');
+  if (!card) return;
+  const t = getCurrentSuggestion();
+  if (!t) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  const travel = isTravelMode();
+  const moduleLabels = { ankle: '🦶', spine: '🌀', upper: '💪', lower: '🦵' };
+  const modulesHtml = t.modules.length
+    ? t.modules.map(m => `<span class="suggest-mod">${moduleLabels[m] || ''} ${m}</span>`).join('')
+    : '<span class="suggest-mod suggest-mod-rest">主动休息</span>';
+
+  card.innerHTML = `
+    <div class="suggest-top">
+      <div class="suggest-label">今日建议 · TODAY</div>
+      <button class="suggest-travel ${travel ? 'on' : ''}" onclick="toggleTravelMode()">
+        ✈️ 旅行模式${travel ? ' · 开' : ''}
+      </button>
+    </div>
+    <div class="suggest-body">
+      <div class="suggest-icon">${t.icon}</div>
+      <div class="suggest-text">
+        <div class="suggest-name">${t.name}</div>
+        <div class="suggest-desc">${t.description}</div>
+        <div class="suggest-mods">${modulesHtml}</div>
+      </div>
+    </div>
+    <button class="suggest-cycle" onclick="cycleSuggestion()">换一个建议 →</button>
+  `;
+}
+
+// Map an actual session's completed modules to the closest template id
+function deriveTemplateFromModules(modules) {
+  if (!modules || modules.length === 0) return 'rest';
+  const set = new Set(modules);
+  // exact-match first
+  for (const t of trainingTemplates) {
+    if (t.modules.length === set.size && t.modules.every(m => set.has(m))) {
+      return t.id;
+    }
+  }
+  // single-module fallbacks
+  if (set.size === 1 && set.has('ankle')) return 'ankle_only';
+  // multi-module fallback: best subset overlap
+  let best = trainingTemplates[0];
+  let bestScore = -1;
+  for (const t of trainingTemplates) {
+    if (t.modules.length === 0) continue;
+    const overlap = t.modules.filter(m => set.has(m)).length;
+    const penalty = (t.modules.length - overlap) + (set.size - overlap);
+    const score = overlap * 10 - penalty;
+    if (score > bestScore) { bestScore = score; best = t; }
+  }
+  return best.id;
+}
+
 function updateCheckinButton() {
   const btn = document.getElementById('checkinBtn');
   const sub = document.getElementById('checkinSub');
@@ -1220,6 +1379,9 @@ async function doCheckin() {
 
   if (done === 0) return;
 
+  // 1) Ask for 0–5 feedback first — bandit signal. User can skip.
+  const score = await askRating();
+
   if (state.lastCheckinDate === getYesterdayKey()) {
     state.streak += 1;
   } else {
@@ -1242,7 +1404,7 @@ async function doCheckin() {
   if (hasToken()) {
     showSaveToast('saving');
     try {
-      const sessionData = buildSessionData(today);
+      const sessionData = buildSessionData(today, { feedback_score: score });
       await writeSession(today, sessionData);
       showSaveToast('success', today);
     } catch (err) {
@@ -1256,7 +1418,43 @@ async function doCheckin() {
   }
 }
 
-function buildSessionData(date) {
+/* ============ RATING MODAL ============ */
+let _ratingResolver = null;
+const _ratingHints = {
+  1: '🐌 蜗牛日 · 慢慢来也算到了',
+  2: '🐢 龟速前进 · 撑下来就赢了',
+  3: '🐰 兔兔节奏 · 蹦蹦跳跳的',
+  4: '🐎 小马在线 · 状态飞奔',
+  5: '🦄 独角兽日 · 神话级状态',
+};
+
+function askRating() {
+  return new Promise(resolve => {
+    _ratingResolver = resolve;
+    document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('ratingHint').textContent = '从蜗牛到独角兽 · 你今天哪只？';
+    document.getElementById('ratingOverlay').classList.add('visible');
+  });
+}
+
+function pickRating(score) {
+  const btns = document.querySelectorAll('.rating-btn');
+  btns.forEach(b => b.classList.remove('selected'));
+  // Buttons are indexed 0..4 in the DOM but represent scores 1..5
+  if (btns[score - 1]) btns[score - 1].classList.add('selected');
+  document.getElementById('ratingHint').textContent = _ratingHints[score] || '';
+  setTimeout(() => {
+    document.getElementById('ratingOverlay').classList.remove('visible');
+    if (_ratingResolver) { _ratingResolver(score); _ratingResolver = null; }
+  }, 350);
+}
+
+function skipRating() {
+  document.getElementById('ratingOverlay').classList.remove('visible');
+  if (_ratingResolver) { _ratingResolver(null); _ratingResolver = null; }
+}
+
+function buildSessionData(date, extras = {}) {
   const exerciseResults = [];
   const touchedModules = new Set();
   ['ankle', 'spine', 'upper', 'lower'].forEach(module => {
@@ -1279,13 +1477,19 @@ function buildSessionData(date) {
       });
     });
   });
+  const modules = Array.from(touchedModules);
+  const suggested = getCurrentSuggestion();
   return {
     date,
     schemaVersion: 1,
     streak: state.streak,
     checkin_time: new Date().toISOString(),
-    modules: Array.from(touchedModules),
+    modules,
     exercises: exerciseResults,
+    template_id: deriveTemplateFromModules(modules),
+    suggested_template_id: suggested ? suggested.id : null,
+    travel_mode: isTravelMode(),
+    feedback_score: extras.feedback_score ?? null,
   };
 }
 
@@ -1294,12 +1498,13 @@ function buildSessionData(date) {
 function normalizeSession(raw) {
   if (!raw) return null;
   if (raw.schemaVersion === 1) return raw;
+  const modules = raw.modules || [];
   return {
     date: raw.date,
     schemaVersion: 1,
     streak: raw.streak,
     checkin_time: raw.checkin_time,
-    modules: raw.modules || [],
+    modules,
     exercises: (raw.exercises || []).map(e => ({
       id: e.id || e.key,
       name: e.name,
@@ -1309,6 +1514,10 @@ function normalizeSession(raw) {
       completedSets: e.completedSets ?? e.sets_completed,
       completed: e.completed ?? e.complete ?? false,
     })),
+    template_id: raw.template_id ?? deriveTemplateFromModules(modules),
+    suggested_template_id: raw.suggested_template_id ?? null,
+    travel_mode: raw.travel_mode ?? false,
+    feedback_score: raw.feedback_score ?? null,
   };
 }
 
@@ -1655,6 +1864,7 @@ Object.assign(window, {
   openAddExercise, closeAddExercise, saveCustomExercise, deleteCustomExercise,
   toggleTheme, openTokenSetup, closeTokenSetup, saveTokenSetup, clearTokenAndReset,
   retryCheckinSave,
+  toggleTravelMode, cycleSuggestion, pickRating, skipRating,
 });
 
 init();

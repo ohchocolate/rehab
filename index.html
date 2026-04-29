@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="每日康复">
 <title>每日康复训练</title>
-<link rel="stylesheet" href="styles/main.css?v=2026-04-22e">
+<link rel="stylesheet" href="styles/main.css?v=2026-04-22h">
 </head>
 <body>
 
@@ -32,6 +32,8 @@
     <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
   </div>
 </div>
+
+<div class="suggestion-card" id="suggestionCard"></div>
 
 <div class="tabs">
   <button class="tab active-ankle" onclick="showSection('ankle', this)">🦶 右踝康复</button>
@@ -131,6 +133,24 @@
       <button class="btn btn-primary" id="timerMainBtn" onclick="toggleTimer()">开始</button>
     </div>
     <button class="manual-plus-btn" onclick="manualIncrementSet()">+1 组（手动计入）</button>
+  </div>
+</div>
+
+<div class="overlay rating-overlay" id="ratingOverlay">
+  <div class="rating-container">
+    <div class="rating-title">今天感觉如何？</div>
+    <div class="rating-sub">给今天打个分 · 帮我记住这种状态</div>
+    <div class="rating-emojis">
+      <button class="rating-btn" onclick="pickRating(1)"><span>🐌</span><em>1</em></button>
+      <button class="rating-btn" onclick="pickRating(2)"><span>🐢</span><em>2</em></button>
+      <button class="rating-btn" onclick="pickRating(3)"><span>🐰</span><em>3</em></button>
+      <button class="rating-btn" onclick="pickRating(4)"><span>🐎</span><em>4</em></button>
+      <button class="rating-btn" onclick="pickRating(5)"><span>🦄</span><em>5</em></button>
+    </div>
+    <div class="rating-hint" id="ratingHint">从蜗牛到独角兽 · 你今天哪只？</div>
+    <div class="reward-btns" style="margin-top:18px">
+      <button class="btn btn-secondary" onclick="skipRating()">跳过</button>
+    </div>
   </div>
 </div>
 
@@ -240,6 +260,6 @@
   </div>
 </div>
 
-<script type="module" src="src/app.js?v=2026-04-22d"></script>
+<script type="module" src="src/app.js?v=2026-04-22h"></script>
 </body>
 </html>
