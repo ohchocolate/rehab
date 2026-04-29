@@ -1534,6 +1534,11 @@ function showSaveToast(status, date, errorMsg) {
     text.textContent = '正在保存到 GitHub…';
     link.style.display = 'none';
     retry.style.display = 'none';
+  } else if (status === 'success_token') {
+    text.textContent = '✓ Token 已保存';
+    link.style.display = 'none';
+    retry.style.display = 'none';
+    setTimeout(() => toast.classList.remove('visible'), 3000);
   } else if (status === 'success') {
     const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
     text.textContent = `✓ 已保存 · ${time}`;

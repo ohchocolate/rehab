@@ -31,5 +31,7 @@
   "template_id": "ankle_only",
   "suggested_template_id": "upper_ankle",
   "travel_mode": false,
+  "was_override": false,
+  "schema_version": 2,
   "feedback_score": 2
 }
