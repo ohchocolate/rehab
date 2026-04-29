@@ -1,4 +1,4 @@
-import { loadStoredConfig, initGitHub, writeSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-04-22h';
+import { loadStoredConfig, initGitHub, writeSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-04-29a';
 
 const exercises = {
   ankle: [
@@ -1395,7 +1395,7 @@ async function doCheckin() {
   const pool = available.length > 0 ? available : rewards.map((_, i) => i);
   const rewardIdx = pool[Math.floor(Math.random() * pool.length)];
 
-  state.checkinHistory.push({ date: today, rewardIdx });
+  state.checkinHistory.push({ date: today, rewardIdx, score });
   saveState();
   updateStreak();
   updateCheckinButton();
@@ -1419,6 +1419,7 @@ async function doCheckin() {
 }
 
 /* ============ RATING MODAL ============ */
+const RATING_EMOJI = { 1: '🐌', 2: '🐢', 3: '🐰', 4: '🐎', 5: '🦄' };
 let _ratingResolver = null;
 const _ratingHints = {
   1: '🐌 蜗牛日 · 慢慢来也算到了',
@@ -1591,56 +1592,127 @@ function closeReward() {
   document.getElementById('rewardOverlay').classList.remove('visible');
 }
 
+let _historyMonth = null;     // {year, month} of currently displayed month
+let _historySelected = null;  // ISO date string of currently selected day
+
 function openHistory() {
   closeReward();
-  const list = document.getElementById('historyList');
-  const stats = document.getElementById('historyStatsText');
-
-  stats.textContent = `${state.checkinHistory.length} 天 · ${state.checkinHistory.length} 份惊喜 · 当前连续 ${state.streak} 天`;
-
-  const cal = document.getElementById('calendarDots');
-  cal.innerHTML = '';
-  const today = new Date();
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const key = getDateKey(d);
-    const done = state.checkinHistory.some(h => h.date === key);
-    const isToday = i === 0;
-    const dot = document.createElement('div');
-    dot.className = `cal-dot${done ? ' done' : ''}${isToday ? ' today' : ''}`;
-    dot.textContent = d.getDate();
-    cal.appendChild(dot);
-  }
-
-  if (state.checkinHistory.length === 0) {
-    list.innerHTML = `<div class="empty-history">还没有打卡记录<br><br>完成任意动作后点击"今日打卡"开始收集吧</div>`;
-  } else {
-    list.innerHTML = '';
-    [...state.checkinHistory].reverse().forEach(h => {
-      const idx = getRewardIdxForEntry(h);
-      const r = rewards[idx];
-      if (!r) return;
-      const catEmoji = { anatomy: '🦴', quote_en: '📖', monument: '🏛', nature: '🌿' }[r.cat] || '✦';
-      const preview = r.cat === 'anatomy' ? `${r.name_en} · ${r.name_zh}` :
-                     r.quote ? r.quote.split('\n')[0] + '…' :
-                     r.quote_en ? '"' + r.quote_en.slice(0, 60) + '…"' :
-                     r.body.slice(0, 60) + '…';
-      const item = document.createElement('div');
-      item.className = 'history-item';
-      item.innerHTML = `
-        <div class="history-date">${h.date} <span class="history-cat">${catEmoji} ${r.category}</span></div>
-        <div class="history-preview">${preview}</div>
-      `;
-      item.onclick = () => {
-        closeHistory();
-        showReward(idx, true);
-      };
-      list.appendChild(item);
-    });
-  }
-
+  const now = new Date();
+  if (!_historyMonth) _historyMonth = { year: now.getFullYear(), month: now.getMonth() };
+  _historySelected = null;
+  renderHistory();
   document.getElementById('historyOverlay').classList.add('visible');
+}
+
+function changeHistoryMonth(delta) {
+  let { year, month } = _historyMonth;
+  month += delta;
+  if (month < 0) { month = 11; year -= 1; }
+  if (month > 11) { month = 0; year += 1; }
+  // Disallow navigating beyond current month
+  const now = new Date();
+  if (year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth())) return;
+  _historyMonth = { year, month };
+  _historySelected = null;
+  renderHistory();
+}
+
+function selectHistoryDay(date) {
+  _historySelected = (_historySelected === date) ? null : date;
+  renderHistory();
+}
+
+function renderHistory() {
+  const stats = document.getElementById('historyStatsText');
+  stats.textContent = `${state.checkinHistory.length} 天 · 当前连续 ${state.streak} 天`;
+
+  const { year, month } = _historyMonth;
+  const monthLabel = `${year} 年 ${month + 1} 月`;
+
+  const firstOfMonth = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startDow = (firstOfMonth.getDay() + 6) % 7; // Mon=0 ... Sun=6
+
+  const historyByDate = new Map(state.checkinHistory.map(h => [h.date, h]));
+  const todayKey = getTodayKey();
+  const now = new Date();
+  const canGoNext = !(year === now.getFullYear() && month === now.getMonth());
+
+  let html = `
+    <div class="history-month-nav">
+      <button class="month-nav-btn" onclick="changeHistoryMonth(-1)" aria-label="上个月">←</button>
+      <div class="month-label">${monthLabel}</div>
+      <button class="month-nav-btn" onclick="changeHistoryMonth(1)" ${canGoNext ? '' : 'disabled'} aria-label="下个月">→</button>
+    </div>
+    <div class="cal-dow">
+      <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+    </div>
+    <div class="cal-grid">
+  `;
+
+  for (let i = 0; i < startDow; i++) html += `<div class="cal-cell empty"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cellDate = new Date(year, month, d);
+    const key = getDateKey(cellDate);
+    const h = historyByDate.get(key);
+    const done = !!h;
+    const isToday = key === todayKey;
+    const isFuture = cellDate > new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const isSelected = key === _historySelected;
+    const animal = (h && h.score && RATING_EMOJI[h.score]) ? RATING_EMOJI[h.score] : '';
+
+    let cls = 'cal-cell';
+    if (done) cls += ' done';
+    if (isToday) cls += ' today';
+    if (isFuture) cls += ' future';
+    if (isSelected) cls += ' selected';
+    const onclick = done ? `onclick="selectHistoryDay('${key}')"` : '';
+    html += `<div class="${cls}" ${onclick}>
+      <span class="cal-num">${d}</span>
+      ${animal ? `<span class="cal-animal">${animal}</span>` : ''}
+    </div>`;
+  }
+
+  html += `</div>`;
+
+  // Detail panel
+  html += `<div class="history-detail">`;
+  if (state.checkinHistory.length === 0) {
+    html += `<div class="empty-history">还没有打卡记录<br><br>完成任意动作后点击"今日打卡"开始收集吧</div>`;
+  } else if (_historySelected) {
+    const h = historyByDate.get(_historySelected);
+    const idx = getRewardIdxForEntry(h);
+    const r = rewards[idx];
+    if (r) {
+      const catEmoji = { anatomy: '🦴', quote_en: '📖', monument: '🏛', nature: '🌿' }[r.cat] || '✦';
+      const animal = (h.score && RATING_EMOJI[h.score]) ? `<span class="detail-animal">${RATING_EMOJI[h.score]}</span>` : '';
+      let body;
+      if (r.cat === 'anatomy') {
+        body = `<div class="detail-anatomy"><div class="detail-anatomy-en">${r.name_en}</div><div class="detail-anatomy-zh">${r.name_zh}</div></div><div class="detail-body">${r.body}</div>`;
+      } else if (r.quote) {
+        body = `<div class="detail-quote">${r.quote.replace(/\n/g, '<br>')}</div>` + (r.body ? `<div class="detail-body">${r.body}</div>` : '');
+      } else if (r.quote_en) {
+        body = `<div class="detail-quote">"${r.quote_en.replace(/\n/g, '<br>')}"</div>` + (r.body ? `<div class="detail-body">${r.body}</div>` : '');
+      } else {
+        body = `<div class="detail-body">${r.body}</div>`;
+      }
+      html += `
+        <div class="detail-head">
+          <div class="detail-date">${_historySelected}</div>
+          ${animal}
+          <div class="detail-cat">${catEmoji} ${r.category}</div>
+        </div>
+        ${body}
+      `;
+    }
+  } else {
+    html += `<div class="detail-hint">点击金色日期 · 回看那天的惊喜</div>`;
+  }
+  html += `</div>`;
+
+  document.getElementById('calendarDots').innerHTML = html;
+  document.getElementById('historyList').innerHTML = '';
 }
 
 function closeHistory() {
@@ -1865,6 +1937,7 @@ Object.assign(window, {
   toggleTheme, openTokenSetup, closeTokenSetup, saveTokenSetup, clearTokenAndReset,
   retryCheckinSave,
   toggleTravelMode, cycleSuggestion, pickRating, skipRating,
+  changeHistoryMonth, selectHistoryDay,
 });
 
 init();
