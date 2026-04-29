@@ -1,0 +1,35 @@
+{
+  "date": "2026-04-28",
+  "schemaVersion": 1,
+  "streak": 8,
+  "checkin_time": "2026-04-29T02:26:58.592Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-2",
+      "name": "足弓强化 Foot Dome",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 10
+    },
+    {
+      "id": "ankle-5",
+      "name": "单腿站立平衡",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedDurationSec": 30
+    }
+  ],
+  "template_id": "ankle_only",
+  "suggested_template_id": "upper_ankle",
+  "travel_mode": false,
+  "feedback_score": 2
+}
