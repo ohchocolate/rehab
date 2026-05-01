@@ -1,0 +1,25 @@
+{
+  "date": "2026-04-30",
+  "schemaVersion": 1,
+  "streak": 10,
+  "checkin_time": "2026-05-01T03:07:28.945Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-5",
+      "name": "单腿站立平衡",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedDurationSec": 30
+    }
+  ],
+  "template_id": "ankle_only",
+  "suggested_template_id": "rest",
+  "travel_mode": false,
+  "feedback_score": 1
+}
