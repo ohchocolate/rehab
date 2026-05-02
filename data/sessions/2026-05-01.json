@@ -1,0 +1,35 @@
+{
+  "date": "2026-05-01",
+  "schemaVersion": 1,
+  "streak": 11,
+  "checkin_time": "2026-05-02T02:44:22.479Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-1",
+      "name": "双侧提踵",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedReps": 10
+    },
+    {
+      "id": "ankle-5",
+      "name": "单腿站立平衡",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedDurationSec": 30
+    }
+  ],
+  "template_id": "ankle_only",
+  "suggested_template_id": "ankle_only",
+  "travel_mode": false,
+  "feedback_score": 2
+}
