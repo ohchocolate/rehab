@@ -1,0 +1,46 @@
+{
+  "date": "2026-05-02",
+  "schemaVersion": 1,
+  "streak": 12,
+  "checkin_time": "2026-05-03T02:34:22.228Z",
+  "modules": [
+    "ankle",
+    "spine"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-0",
+      "name": "半跪姿踝背屈活动",
+      "module": "ankle",
+      "category": "warmup",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 15
+    },
+    {
+      "id": "ankle-3",
+      "name": "踝关节内外翻 AROM",
+      "module": "ankle",
+      "category": "warmup",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 10
+    },
+    {
+      "id": "spine-3",
+      "name": "泡沫轴胸椎伸展",
+      "module": "spine",
+      "category": "warmup",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedDurationSec": 30
+    }
+  ],
+  "template_id": "stretch_ankle",
+  "suggested_template_id": "rest",
+  "travel_mode": false,
+  "feedback_score": 2
+}
