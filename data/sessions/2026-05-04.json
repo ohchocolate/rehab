@@ -1,0 +1,25 @@
+{
+  "date": "2026-05-04",
+  "schemaVersion": 1,
+  "streak": 14,
+  "checkin_time": "2026-05-05T02:26:04.346Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-1",
+      "name": "单腿站姿提踵",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedReps": 10
+    }
+  ],
+  "template_id": "ankle_only",
+  "suggested_template_id": "lower_ankle",
+  "travel_mode": false,
+  "feedback_score": 1
+}
