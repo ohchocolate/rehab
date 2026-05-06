@@ -1,0 +1,46 @@
+{
+  "date": "2026-05-06",
+  "schemaVersion": 1,
+  "streak": 16,
+  "checkin_time": "2026-05-06T23:09:53.689Z",
+  "modules": [
+    "ankle",
+    "spine"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-1",
+      "name": "单腿站姿提踵",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedReps": 10
+    },
+    {
+      "id": "ankle-4",
+      "name": "双脚踝弹跳 Pogo Hop",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedDurationSec": 30
+    },
+    {
+      "id": "spine-1",
+      "name": "跪姿胸椎旋转",
+      "module": "spine",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 1,
+      "completed": false,
+      "plannedReps": 8
+    }
+  ],
+  "template_id": "stretch_ankle",
+  "suggested_template_id": "travel_minimal",
+  "travel_mode": false,
+  "feedback_score": 3
+}
