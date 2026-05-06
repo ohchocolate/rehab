@@ -1,0 +1,35 @@
+{
+  "date": "2026-05-05",
+  "schemaVersion": 1,
+  "streak": 15,
+  "checkin_time": "2026-05-06T03:19:10.283Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-1",
+      "name": "单腿站姿提踵",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedReps": 10
+    },
+    {
+      "id": "ankle-3",
+      "name": "弓步位比目鱼肌提踵",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 10
+    }
+  ],
+  "template_id": "ankle_only",
+  "suggested_template_id": "stretch_ankle",
+  "travel_mode": false,
+  "feedback_score": 2
+}
