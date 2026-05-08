@@ -1,0 +1,25 @@
+{
+  "date": "2026-05-07",
+  "schemaVersion": 1,
+  "streak": 17,
+  "checkin_time": "2026-05-08T00:49:14.672Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-2",
+      "name": "足弓强化 Foot Dome",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 10
+    }
+  ],
+  "template_id": "ankle_only",
+  "suggested_template_id": "ankle_only",
+  "travel_mode": false,
+  "feedback_score": 1
+}
