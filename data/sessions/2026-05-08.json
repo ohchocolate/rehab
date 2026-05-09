@@ -1,0 +1,35 @@
+{
+  "date": "2026-05-08",
+  "schemaVersion": 1,
+  "streak": 18,
+  "checkin_time": "2026-05-09T02:01:52.939Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-3",
+      "name": "弓步位比目鱼肌提踵",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 10
+    },
+    {
+      "id": "ankle-4",
+      "name": "双脚踝弹跳 Pogo Hop",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedDurationSec": 30
+    }
+  ],
+  "template_id": "ankle_only",
+  "suggested_template_id": "rest",
+  "travel_mode": false,
+  "feedback_score": 3
+}
