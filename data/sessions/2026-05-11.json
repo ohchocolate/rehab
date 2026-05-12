@@ -1,0 +1,35 @@
+{
+  "date": "2026-05-11",
+  "schemaVersion": 1,
+  "streak": 1,
+  "checkin_time": "2026-05-12T02:37:49.049Z",
+  "modules": [
+    "ankle"
+  ],
+  "exercises": [
+    {
+      "id": "ankle-4",
+      "name": "双脚踝弹跳 Pogo Hop",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedDurationSec": 30
+    },
+    {
+      "id": "ankle-5",
+      "name": "单腿 RDL（HEP版）",
+      "module": "ankle",
+      "category": "main",
+      "plannedSets": 2,
+      "completedSets": 2,
+      "completed": true,
+      "plannedReps": 10
+    }
+  ],
+  "template_id": "ankle_only",
+  "suggested_template_id": "rest",
+  "travel_mode": false,
+  "feedback_score": 3
+}
