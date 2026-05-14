@@ -1,0 +1,37 @@
+{
+  "date": "2026-05-13",
+  "schemaVersion": 1,
+  "streak": 1,
+  "checkin_time": "2026-05-14T02:10:52.110Z",
+  "savedAt": "2026-05-14T02:10:52.110Z",
+  "modules": [
+    "upper"
+  ],
+  "exercises": [
+    {
+      "id": "upper-1",
+      "name": "双侧肩外旋（弹力带）",
+      "module": "upper",
+      "category": "warmup",
+      "plannedSets": 3,
+      "completedSets": 2,
+      "completed": false,
+      "plannedReps": 12
+    },
+    {
+      "id": "upper-4",
+      "name": "前锯肌俯卧撑 Serratus Push Up",
+      "module": "upper",
+      "category": "main",
+      "plannedSets": 3,
+      "completedSets": 3,
+      "completed": true,
+      "plannedReps": 10
+    }
+  ],
+  "template_id": "upper_ankle",
+  "suggested_template_id": "lower_ankle",
+  "travel_mode": false,
+  "feedback_score": 2,
+  "manual_recovery": false
+}
