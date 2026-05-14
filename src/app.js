@@ -1,4 +1,4 @@
-import { loadStoredConfig, initGitHub, writeSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-05-02a';
+import { loadStoredConfig, initGitHub, writeSession, readSession, listSessions, hasToken, GitHubError } from './github.js?v=2026-05-13a';
 
 const exercises = {
   ankle: [
@@ -759,7 +759,17 @@ function getYesterdayKey() {
   return getDateKey(d);
 }
 
+// Storage model (since 2026-05-13):
+//   rehab_state_v1            → long-lived: streak, lastCheckinDate, checkinHistory
+//   draft_session_YYYY-MM-DD  → per-day exercise progress (completedToday, setsPartial)
+// Split so cross-day data never gets dropped just because the day rolled over.
+// See CLAUDE.md "5 秒持久化" rule.
+const DRAFT_PREFIX = 'draft_session_';
+
+function draftKey(date) { return DRAFT_PREFIX + date; }
+
 function loadState() {
+  // 1) Long-lived state
   try {
     const raw = localStorage.getItem('rehab_state_v1');
     if (raw) {
@@ -768,9 +778,22 @@ function loadState() {
       state.lastCheckinDate = loaded.lastCheckinDate || null;
       state.checkinHistory = loaded.checkinHistory || [];
 
-      if (loaded.completedDate === getTodayKey()) {
-        state.completedToday = new Set(loaded.completedToday || []);
-        state.setsPartial = loaded.setsPartial || {};
+      // One-time migration from pre-2026-05-13 shape (had completedToday/setsPartial/completedDate inline).
+      // Move them into draft_session_${completedDate} so the recovery flow can pick them up if stale.
+      if (loaded.completedDate && (loaded.completedToday?.length || Object.keys(loaded.setsPartial || {}).length)) {
+        const migratedKey = draftKey(loaded.completedDate);
+        if (!localStorage.getItem(migratedKey)) {
+          localStorage.setItem(migratedKey, JSON.stringify({
+            date: loaded.completedDate,
+            completedToday: loaded.completedToday || [],
+            setsPartial: loaded.setsPartial || {},
+            updatedAt: new Date().toISOString(),
+          }));
+        }
+        delete loaded.completedToday;
+        delete loaded.setsPartial;
+        delete loaded.completedDate;
+        localStorage.setItem('rehab_state_v1', JSON.stringify(loaded));
       }
 
       if (state.lastCheckinDate && state.lastCheckinDate !== getTodayKey() && state.lastCheckinDate !== getYesterdayKey()) {
@@ -778,19 +801,185 @@ function loadState() {
       }
     }
   } catch(e) { console.log('Load err', e); }
+
+  // 2) Today's draft (if any)
+  loadTodayDraft();
 }
 
-function saveState() {
+function loadTodayDraft() {
+  state.completedToday = new Set();
+  state.setsPartial = {};
+  try {
+    const raw = localStorage.getItem(draftKey(getTodayKey()));
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    state.completedToday = new Set(draft.completedToday || []);
+    state.setsPartial = draft.setsPartial || {};
+  } catch(e) { console.log('Draft load err', e); }
+}
+
+function saveState(opts = {}) {
+  // Long-lived state
   try {
     localStorage.setItem('rehab_state_v1', JSON.stringify({
       streak: state.streak,
       lastCheckinDate: state.lastCheckinDate,
       checkinHistory: state.checkinHistory,
-      completedToday: Array.from(state.completedToday),
-      setsPartial: state.setsPartial,
-      completedDate: getTodayKey(),
     }));
   } catch(e) { console.log('Save err', e); }
+
+  // Today's draft — always reflects current in-memory progress
+  saveTodayDraft({ blip: opts.blip });
+}
+
+function saveTodayDraft({ blip = false } = {}) {
+  const today = getTodayKey();
+  const completed = Array.from(state.completedToday);
+  const partialEntries = Object.entries(state.setsPartial || {}).filter(([, n]) => n > 0);
+  const hasProgress = completed.length > 0 || partialEntries.length > 0;
+
+  const key = draftKey(today);
+  if (!hasProgress) {
+    localStorage.removeItem(key);
+    return;
+  }
+  try {
+    localStorage.setItem(key, JSON.stringify({
+      date: today,
+      completedToday: completed,
+      setsPartial: Object.fromEntries(partialEntries),
+      updatedAt: new Date().toISOString(),
+    }));
+    if (blip) showAutosaveBlip();
+  } catch(e) { console.log('Draft save err', e); }
+}
+
+// Scan localStorage for past-day drafts with real progress.
+// Returns [{ date, completedCount, partialCount, draft }, …] sorted ascending.
+function scanStaleDrafts() {
+  const today = getTodayKey();
+  const stale = [];
+  const empties = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || !k.startsWith(DRAFT_PREFIX)) continue;
+    const date = k.slice(DRAFT_PREFIX.length);
+    if (date >= today) continue;
+    let draft;
+    try { draft = JSON.parse(localStorage.getItem(k)); }
+    catch(e) { empties.push(k); continue; }
+    const completedCount = (draft?.completedToday || []).length;
+    const partialCount = Object.values(draft?.setsPartial || {}).filter(n => n > 0).length;
+    if (completedCount + partialCount === 0) { empties.push(k); continue; }
+    stale.push({ date, completedCount, partialCount, draft });
+  }
+  empties.forEach(k => localStorage.removeItem(k));
+  return stale.sort((a, b) => (a.date < b.date ? -1 : 1));
+}
+
+// ============ RECOVERY FLOW ============
+// Walks the user through any past-day drafts that never made it to GitHub.
+// Each draft: 保存到 GitHub / 稍后处理 (next launch) / 放弃 (delete local).
+let _recoveryQueue = [];
+let _recoveryCurrent = null;
+
+function formatRecoveryDate(date) {
+  // "2026-05-12" → "5 月 12 日（周一）"
+  const [y, m, d] = date.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  const weekday = ['周日','周一','周二','周三','周四','周五','周六'][dt.getDay()];
+  return `${m} 月 ${d} 日（${weekday}）`;
+}
+
+function checkStaleDrafts() {
+  const stale = scanStaleDrafts();
+  if (stale.length === 0) return;
+  _recoveryQueue = stale;
+  showNextRecovery();
+}
+
+function showNextRecovery() {
+  const backdrop = document.getElementById('recoveryPopupBackdrop');
+  if (_recoveryQueue.length === 0) {
+    backdrop.classList.remove('visible');
+    _recoveryCurrent = null;
+    return;
+  }
+  _recoveryCurrent = _recoveryQueue.shift();
+  const { date, completedCount, partialCount } = _recoveryCurrent;
+  document.getElementById('recoveryPopupDate').textContent = formatRecoveryDate(date);
+  const stats = [];
+  if (completedCount > 0) stats.push(`完成 <span class="stat-num">${completedCount}</span>`);
+  if (partialCount > 0) stats.push(`部分 <span class="stat-num">${partialCount}</span>`);
+  document.getElementById('recoveryPopupStats').innerHTML = stats.join(' · ');
+  backdrop.classList.add('visible');
+}
+
+async function recoverySave() {
+  const cur = _recoveryCurrent;
+  if (!cur) return;
+  if (!hasToken()) {
+    document.getElementById('recoveryPopupBackdrop').classList.remove('visible');
+    openTokenSetup();
+    return;
+  }
+  document.getElementById('recoveryPopupBackdrop').classList.remove('visible');
+  showSaveToast('saving');
+  try {
+    // Conflict check — if GitHub already has this date, ask user before overwriting.
+    let existing = null;
+    try { existing = await readSession(cur.date); } catch(e) { /* treat as not-present */ }
+    if (existing) {
+      const githubExCount = (existing.exercises || []).length;
+      const localExCount = cur.completedCount + cur.partialCount;
+      const overwrite = confirm(
+        `${formatRecoveryDate(cur.date)} 已在 GitHub 上有记录（${githubExCount} 个动作）。\n\n` +
+        `本地草稿有 ${localExCount} 个动作。\n\n` +
+        `点 [确定] → 用本地覆盖 GitHub\n` +
+        `点 [取消] → 保留 GitHub 版本（删除本地草稿）`
+      );
+      if (!overwrite) {
+        localStorage.removeItem(draftKey(cur.date));
+        showSaveToast('success', cur.date);
+        document.getElementById('saveToastText').textContent = '已保留 GitHub 版本';
+        showNextRecovery();
+        return;
+      }
+    }
+    const sessionData = buildSessionData(cur.date, { manual_recovery: true }, cur.draft);
+    await writeSession(cur.date, sessionData);
+
+    // Merge into local history so streak picks it up.
+    const dates = new Set(state.checkinHistory.map(h => h.date));
+    if (!dates.has(cur.date)) {
+      state.checkinHistory.push({ date: cur.date, manualRecovery: true });
+      state.checkinHistory.sort((a, b) => (a.date < b.date ? -1 : 1));
+      recomputeStreak();
+      saveState();
+      updateStreak();
+      updateCheckinButton();
+    }
+    localStorage.removeItem(draftKey(cur.date));
+    showSaveToast('success', cur.date);
+  } catch(err) {
+    showSaveToast('error', null, err?.message || '保存失败');
+    // Keep draft on failure — user can retry next launch.
+  }
+  showNextRecovery();
+}
+
+function recoveryPostpone() {
+  document.getElementById('recoveryPopupBackdrop').classList.remove('visible');
+  _recoveryQueue = [];
+  _recoveryCurrent = null;
+}
+
+function recoveryDiscard() {
+  const cur = _recoveryCurrent;
+  if (!cur) return;
+  if (!confirm(`确定放弃 ${formatRecoveryDate(cur.date)} 的训练记录？删除后无法恢复。`)) return;
+  localStorage.removeItem(draftKey(cur.date));
+  showNextRecovery();
 }
 
 // Derive a stable reward index from a date string — used for history entries
@@ -887,6 +1076,9 @@ function init() {
 
   // Pull historical dates from GitHub so streak/history survive cache clears & device switches
   syncHistoryFromGitHub();
+
+  // Surface any past-day drafts that never made it to GitHub.
+  checkStaleDrafts();
 }
 
 function getAllExercises(type) {
@@ -1211,6 +1403,10 @@ function completeSet() {
     markExDone();
     closeTimer();
   } else {
+    // Persist partial progress every set so killing the tab mid-exercise never loses data.
+    state.setsPartial[currentEx.key] = currentSet;
+    saveState({ blip: true });
+
     currentSet++;
     renderSetDots();
     resetTimerDisplay();
@@ -1228,7 +1424,7 @@ function markExDone() {
     card.classList.remove('partial');
     card.classList.add('completed');
   }
-  saveState();
+  saveState({ blip: true });
   updateProgress();
   updateCheckinButton();
 }
@@ -1277,7 +1473,7 @@ function exitSave() {
   const setsCompleted = currentSet - 1;
   state.setsPartial[currentEx.key] = setsCompleted;
   state.completedToday.delete(currentEx.key);
-  saveState();
+  saveState({ blip: true });
   renderSection(currentEx.type);
   updateProgress();
   updateCheckinButton();
@@ -1514,14 +1710,19 @@ function skipRating() {
   if (_ratingResolver) { _ratingResolver(null); _ratingResolver = null; }
 }
 
-function buildSessionData(date, extras = {}) {
+// When `src` is a draft object ({ completedToday, setsPartial, updatedAt }), build from it
+// instead of live `state` — used by the recovery flow for past-date drafts.
+function buildSessionData(date, extras = {}, src = null) {
+  const completedSet = src ? new Set(src.completedToday || []) : state.completedToday;
+  const setsPartialMap = src ? (src.setsPartial || {}) : state.setsPartial;
+
   const exerciseResults = [];
   const touchedModules = new Set();
   ['ankle', 'spine', 'upper', 'lower'].forEach(module => {
     getAllExercises(module).forEach((ex, i) => {
       const key = `${module}-${i}`;
-      const done = state.completedToday.has(key);
-      const partial = state.setsPartial[key] || 0;
+      const done = completedSet.has(key);
+      const partial = setsPartialMap[key] || 0;
       if (!done && partial === 0) return;
       touchedModules.add(module);
       exerciseResults.push({
@@ -1538,18 +1739,21 @@ function buildSessionData(date, extras = {}) {
     });
   });
   const modules = Array.from(touchedModules);
-  const suggested = getCurrentSuggestion();
+  const suggested = src ? null : getCurrentSuggestion();
+  const now = new Date().toISOString();
   return {
     date,
     schemaVersion: 1,
-    streak: state.streak,
-    checkin_time: new Date().toISOString(),
+    streak: src ? null : state.streak,
+    checkin_time: src ? (src.updatedAt || now) : now,
+    savedAt: now,
     modules,
     exercises: exerciseResults,
     template_id: deriveTemplateFromModules(modules),
     suggested_template_id: suggested ? suggested.id : null,
-    travel_mode: isTravelMode(),
+    travel_mode: src ? false : isTravelMode(),
     feedback_score: extras.feedback_score ?? null,
+    manual_recovery: extras.manual_recovery ?? false,
   };
 }
 
@@ -1564,6 +1768,7 @@ function normalizeSession(raw) {
     schemaVersion: 1,
     streak: raw.streak,
     checkin_time: raw.checkin_time,
+    savedAt: raw.savedAt ?? raw.checkin_time ?? null,
     modules,
     exercises: (raw.exercises || []).map(e => ({
       id: e.id || e.key,
@@ -1578,7 +1783,17 @@ function normalizeSession(raw) {
     suggested_template_id: raw.suggested_template_id ?? null,
     travel_mode: raw.travel_mode ?? false,
     feedback_score: raw.feedback_score ?? null,
+    manual_recovery: raw.manual_recovery ?? false,
   };
+}
+
+let _blipTimer = null;
+function showAutosaveBlip() {
+  const blip = document.getElementById('autosaveBlip');
+  if (!blip) return;
+  blip.classList.add('visible');
+  clearTimeout(_blipTimer);
+  _blipTimer = setTimeout(() => blip.classList.remove('visible'), 1200);
 }
 
 function showSaveToast(status, date, errorMsg) {
@@ -2002,6 +2217,7 @@ Object.assign(window, {
   retryCheckinSave,
   toggleTravelMode, cycleSuggestion, pickRating, skipRating,
   changeHistoryMonth, selectHistoryDay,
+  recoverySave, recoveryPostpone, recoveryDiscard,
 });
 
 init();

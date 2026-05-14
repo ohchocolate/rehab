@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="每日康复">
 <title>每日康复训练</title>
-<link rel="stylesheet" href="styles/main.css?v=2026-04-29a">
+<link rel="stylesheet" href="styles/main.css?v=2026-05-13a">
 </head>
 <body>
 
@@ -62,6 +62,21 @@
   <div class="countdown-hint">点击跳过</div>
 </div>
 
+<div class="recovery-popup-backdrop" id="recoveryPopupBackdrop">
+  <div class="recovery-popup">
+    <div class="recovery-popup-mark">📌</div>
+    <div class="recovery-popup-title" id="recoveryPopupTitle">发现未保存的训练</div>
+    <div class="recovery-popup-date" id="recoveryPopupDate"></div>
+    <div class="recovery-popup-stats" id="recoveryPopupStats"></div>
+    <div class="recovery-popup-hint">保存到 GitHub 才能进入连续打卡记录</div>
+    <div class="recovery-popup-btns">
+      <button class="btn btn-secondary" onclick="recoveryDiscard()">放弃</button>
+      <button class="btn btn-secondary" onclick="recoveryPostpone()">稍后处理</button>
+      <button class="btn btn-gold" onclick="recoverySave()">保存到 GitHub</button>
+    </div>
+  </div>
+</div>
+
 <div class="exit-popup-backdrop" id="exitPopupBackdrop">
   <div class="exit-popup">
     <div class="exit-popup-title">保存进度？</div>
@@ -78,6 +93,11 @@
   <span id="saveToastText">已保存 ✓</span>
   <a id="saveToastLink" href="#" target="_blank" style="display:none">查看记录 →</a>
   <button id="saveToastRetry" onclick="retryCheckinSave()" style="display:none">重试</button>
+</div>
+
+<div class="autosave-blip" id="autosaveBlip">
+  <span class="autosave-dot"></span>
+  <span>已自动保存</span>
 </div>
 
 <div class="overlay" id="tokenSetupOverlay">
@@ -260,6 +280,6 @@
   </div>
 </div>
 
-<script type="module" src="src/app.js?v=2026-05-02a"></script>
+<script type="module" src="src/app.js?v=2026-05-13a"></script>
 </body>
 </html>

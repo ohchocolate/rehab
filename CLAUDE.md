@@ -1,7 +1,7 @@
 # CLAUDE.md — Eva's Rehab × Fitness Tracker
 
 > This file is Claude Code's persistent memory. Read this before touching any file.  
-> Last updated: 2026-04-21
+> Last updated: 2026-05-13
 
 ---
 
@@ -16,7 +16,7 @@
 
 ---
 
-## Current State (as of 2026-04-29)
+## Current State (as of 2026-05-13)
 
 ### Shipped ✅
 - Single-file `index.html` + extracted `src/app.js` + `styles/main.css` (modules) deployed to GitHub Pages
@@ -32,6 +32,12 @@
   - "今日建议" card on home page with cycle button + ✈️ travel-mode toggle
   - Post-checkin 1–5 rating modal (🐌🐢🐰🐎🦄) — feedback signal for the bandit
   - Session JSON now carries `template_id`, `suggested_template_id`, `travel_mode`, `feedback_score`
+- **Draft-based persistence (2026-05-13)** — fixes silent cross-day data loss:
+  - Per-day exercise progress lives in `localStorage.draft_session_YYYY-MM-DD`, separate from long-lived `rehab_state_v1` (streak / lastCheckinDate / checkinHistory). Cross-day rollover no longer drops yesterday's progress.
+  - Every set completion (incl. `+1 组`) writes the draft immediately — see "5 秒持久化" rule below.
+  - "已自动保存" blip top-right confirms each write without nagging.
+  - On launch, any past-day draft with progress triggers a recovery popup: 保存到 GitHub / 稍后处理 / 放弃. Save path does a `readSession()` conflict check before overwriting GitHub.
+  - Session JSON adds `savedAt` and `manual_recovery` (additive, schema v1 compatible).
 
 ### Known Issues (active)
 1. ~~Day mode color bug~~ ✅ Fixed (commit `6f26b7e`)
@@ -44,6 +50,9 @@
 8. ~~Lower body module missing~~ ✅ Shipped 2026-04-22
 9. **Suggestion card is a stub**: cycles deterministically by date hash; will be wired to rehab-bandit project — preserve `getCurrentSuggestion()` seam in `src/app.js`
 10. **History sync only fetches dates, not session content**: re-opening calendar on a fresh device shows checkmarks but not the rating animal or reward content (those need a per-day fetch — out of scope until charts page)
+11. ~~Cross-day data loss when 打卡 not pressed~~ ✅ Fixed 2026-05-13 — draft-based persistence (see Shipped above)
+12. **Exit-timer popup is vestigial**: with per-set autosave, `closeTimer` never triggers the "保存进度？" popup. HTML/CSS/handlers (`exitSave` / `exitDiscard` / `exitContinue`) are dead code — safe to remove on a future cleanup pass. Don't add features into it.
+13. **Cross-device doCheckin re-entry**: if `state.lastCheckinDate` is missing locally (cache clear / fresh device) but GitHub already has today's session, `doCheckin()` will re-roll reward, re-ask rating, and overwrite GitHub's `feedback_score`. Not fixed yet — needs a GitHub-side check in `doCheckin`. Low frequency.
 
 ---
 
@@ -161,6 +170,7 @@ One JSON file per session at `/data/sessions/YYYY-MM-DD.json`:
   "schemaVersion": 1,
   "streak": 12,
   "checkin_time": "2026-04-20T14:23:00.000Z",
+  "savedAt": "2026-04-20T14:23:00.000Z",
   "modules": ["ankle", "spine", "upper"],
   "exercises": [
     {
@@ -177,9 +187,13 @@ One JSON file per session at `/data/sessions/YYYY-MM-DD.json`:
   "template_id": "upper_ankle",
   "suggested_template_id": "stretch_ankle",
   "travel_mode": false,
-  "feedback_score": 4
+  "feedback_score": 4,
+  "manual_recovery": false
 }
 ```
+
+`savedAt` — ISO timestamp of the GitHub write. Differs from `checkin_time` when the session was recovered later via the stale-draft popup.  
+`manual_recovery` — `true` only when this session was written from the recovery popup (i.e., the user did the training on a different day than they pressed save). `feedback_score` will be `null` for these (no rating modal in the recovery path).
 
 **Schema evolution rules**:
 - Additive changes (new optional fields) are safe
@@ -403,6 +417,23 @@ Eva 首次切到新版本需 hard refresh 一次（Cmd+Shift+R）拉走旧 `inde
 
 ---
 
+## Design Principles (load-bearing)
+
+### 5 秒持久化 (since 2026-05-13)
+
+Any user input — completing a set, recording reps, stopping a timer — must reach a persistence layer (`localStorage` draft or GitHub commit) within **5 seconds** of the action. The "打卡" button is a **status transition** (today → checked-in, reward unlocked, GitHub committed), **not** the only moment data lands.
+
+Concretely:
+- `completeSet()` writes `state.setsPartial[key]` and calls `saveTodayDraft()` *before* incrementing `currentSet`. The same applies to `markExDone()` and `+1 组` manual increment.
+- The draft for today lives in `localStorage.draft_session_YYYY-MM-DD`. Cross-day rollover cannot drop it — old keys remain readable and trigger the recovery popup on next launch.
+- The "已自动保存" blip is the user-visible contract that this rule is holding.
+
+If you introduce any new user-input surface (rating slider, weight input, notes…), wire it through `saveState({ blip: true })` (or a sibling that updates the right localStorage key) at the moment of input. **No deferring to a save button.**
+
+5 seconds is the upper bound, not the target — current implementation is synchronous. The budget exists so future optimizations (debounce, batching, retry queues) have room without breaking the contract.
+
+---
+
 ## What Claude Code Should Never Do
 
 - Don't change the color palette without asking
@@ -412,6 +443,7 @@ Eva 首次切到新版本需 hard refresh 一次（Cmd+Shift+R）拉走旧 `inde
 - Don't introduce a build step silently
 - Don't break the session JSON schema — additive changes only, bump `schemaVersion` if breaking
 - Don't rename or change semantics of the bandit-contract fields (`template_id`, `suggested_template_id`, `travel_mode`, `feedback_score`) — coordinate with the rehab-bandit project first
+- Don't make a user action depend on a manual "save" button for persistence — see "5 秒持久化" rule. Inputs land in localStorage immediately; GitHub commit is a separate concern owned by 打卡 / recovery flow only.
 - Don't change template IDs in `trainingTemplates` registry — they're keys the bandit indexes on
 - Don't remove the settings icon from persistent view (Known Issue #2)
 - Don't use `--text-dim` or `--text-muted` for celebration / milestone content
