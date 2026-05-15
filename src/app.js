@@ -779,16 +779,20 @@ function loadState() {
       state.checkinHistory = loaded.checkinHistory || [];
 
       // One-time migration from pre-2026-05-13 shape (had completedToday/setsPartial/completedDate inline).
-      // Move them into draft_session_${completedDate} so the recovery flow can pick them up if stale.
+      // Old saveState wrote those fields even AFTER 打卡 — they were leftovers, not in-progress data.
+      // Only create a draft if the date is not already in checkinHistory; otherwise just clean up.
       if (loaded.completedDate && (loaded.completedToday?.length || Object.keys(loaded.setsPartial || {}).length)) {
-        const migratedKey = draftKey(loaded.completedDate);
-        if (!localStorage.getItem(migratedKey)) {
-          localStorage.setItem(migratedKey, JSON.stringify({
-            date: loaded.completedDate,
-            completedToday: loaded.completedToday || [],
-            setsPartial: loaded.setsPartial || {},
-            updatedAt: new Date().toISOString(),
-          }));
+        const checkedInDates = new Set((loaded.checkinHistory || []).map(h => h.date));
+        if (!checkedInDates.has(loaded.completedDate)) {
+          const migratedKey = draftKey(loaded.completedDate);
+          if (!localStorage.getItem(migratedKey)) {
+            localStorage.setItem(migratedKey, JSON.stringify({
+              date: loaded.completedDate,
+              completedToday: loaded.completedToday || [],
+              setsPartial: loaded.setsPartial || {},
+              updatedAt: new Date().toISOString(),
+            }));
+          }
         }
         delete loaded.completedToday;
         delete loaded.setsPartial;
@@ -856,24 +860,28 @@ function saveTodayDraft({ blip = false } = {}) {
 
 // Scan localStorage for past-day drafts with real progress.
 // Returns [{ date, completedCount, partialCount, draft }, …] sorted ascending.
+// Drops drafts for dates already in checkinHistory — those were saved to GitHub
+// long ago and are just leftover localStorage cruft.
 function scanStaleDrafts() {
   const today = getTodayKey();
+  const checkedInDates = new Set(state.checkinHistory.map(h => h.date));
   const stale = [];
-  const empties = [];
+  const cleanup = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (!k || !k.startsWith(DRAFT_PREFIX)) continue;
     const date = k.slice(DRAFT_PREFIX.length);
     if (date >= today) continue;
+    if (checkedInDates.has(date)) { cleanup.push(k); continue; }
     let draft;
     try { draft = JSON.parse(localStorage.getItem(k)); }
-    catch(e) { empties.push(k); continue; }
+    catch(e) { cleanup.push(k); continue; }
     const completedCount = (draft?.completedToday || []).length;
     const partialCount = Object.values(draft?.setsPartial || {}).filter(n => n > 0).length;
-    if (completedCount + partialCount === 0) { empties.push(k); continue; }
+    if (completedCount + partialCount === 0) { cleanup.push(k); continue; }
     stale.push({ date, completedCount, partialCount, draft });
   }
-  empties.forEach(k => localStorage.removeItem(k));
+  cleanup.forEach(k => localStorage.removeItem(k));
   return stale.sort((a, b) => (a.date < b.date ? -1 : 1));
 }
 
@@ -1074,11 +1082,10 @@ function init() {
     document.getElementById('tokenNotice').style.display = 'block';
   }
 
-  // Pull historical dates from GitHub so streak/history survive cache clears & device switches
-  syncHistoryFromGitHub();
-
-  // Surface any past-day drafts that never made it to GitHub.
-  checkStaleDrafts();
+  // Pull historical dates from GitHub so streak/history survive cache clears & device switches,
+  // THEN surface any past-day drafts that genuinely never made it to GitHub.
+  // Order matters: scanStaleDrafts uses checkinHistory to filter out already-saved dates.
+  syncHistoryFromGitHub().finally(() => checkStaleDrafts());
 }
 
 function getAllExercises(type) {
